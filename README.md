@@ -7,9 +7,9 @@ You type in the players you can find. It writes a complete, import-ready
 roster — ratings, archetypes, heights, weights, hometowns, and the rest of
 the 85-man squad filled in for you.
 
-> **Alpha.** This is the first public build. It works and it is heavily
-> tested, but see [Before you start](#before-you-start) — particularly the
-> part about backing up your save.
+> **Alpha.** It works and it is heavily tested, but see
+> [Before you start](#before-you-start) — particularly the part about backing
+> up your save.
 
 **[Download the latest release →](../../releases/latest)**
 
@@ -53,7 +53,7 @@ SmartScreen shows *"Windows protected your PC"*. Click **More info** →
 and you can build it yourself — and every release here is built from it by
 [a workflow you can read](.github/workflows/release.yml).
 
-**It is early.** The release is built on a Windows machine, all 221 tests
+**It is early.** The release is built on a Windows machine, all 229 tests
 run there, and `RosterGenerator.Cli.exe` is launched and exercised there
 before packaging. The desktop app has been downloaded and clicked through on
 Windows to confirm it opens and works — but only once, by one person, on one
@@ -102,7 +102,7 @@ Two things are worth the effort if you can manage them:
 | | Why |
 |---|---|
 | **`Role`** — `Starter` / `Backup` / `Reserve` / `Walk-on` | The cheapest win by far. Without it, players you supply nothing else for all land within a couple of points of each other. One word separates a starter from a third-stringer. Blank is fine and changes nothing. |
-| **Stats, draft position, awards** (in the fuller template) | Makes the ratings genuinely accurate rather than merely plausible. Never required. |
+| **Stats, draft position, awards** (in the fuller template) | Makes the ratings genuinely accurate rather than merely plausible. Never required. There is an `AwardContender` column too, for what a player was in the running for without winning — often the only evidence left when a season ended early. |
 
 You do **not** need to research a team's walk-ons. Every slot you do not
 supply is filled in as believable depth.
@@ -209,7 +209,7 @@ what is known about each column of the save file and how it was confirmed,
 how ratings are derived, and the fidelity benchmark.
 
 The short version: a generated 2023 Florida State roster tracks the shape of
-the roster the game itself ships for Florida State to within **2.01 overall
+the roster the game itself ships for Florida State to within **2.07 overall
 points per roster rank** — closer than a hand-built recreation of the same
 team managed (3.02).
 

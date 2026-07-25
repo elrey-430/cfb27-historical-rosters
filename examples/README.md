@@ -10,8 +10,8 @@ The 2023 Florida State team — 13-1, ACC champions, ten players taken in the
 
 75 players. It is the file used to develop and test the generator, so it
 shows the format working at full detail: draft positions with overall pick
-numbers, All-ACC and All-America honours, season statistics, hometowns,
-transfer origins and depth-chart roles.
+numbers, All-ACC and All-America honours, awards a player was in contention
+for, season statistics, hometowns, transfer origins and depth-chart roles.
 
 Try it:
 
