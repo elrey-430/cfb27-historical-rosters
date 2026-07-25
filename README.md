@@ -1,11 +1,18 @@
 # CFB27 Historical Roster Generator
 
-Recreate real historical college football rosters inside your CFB27 dynasty
-save.
+Recreate real historical college football rosters inside your CFB27 dynasty.
 
 You type in the players you can find. It writes a complete, import-ready
 roster — ratings, archetypes, heights, weights, hometowns, and the rest of
 the 85-man squad filled in for you.
+
+It works on **CSV files, not save files.** You export your dynasty to CSVs
+with the community export tool, this reads those and writes a new CSV, and
+the community roster editor imports it back:
+
+```
+your dynasty → [export tool] → CSV files → [this tool] → new CSV → [roster editor]
+```
 
 > **Alpha.** It works and it is heavily tested, but see
 > [Before you start](#before-you-start) — particularly the part about backing
@@ -60,9 +67,10 @@ Windows to confirm it opens and works — but only once, by one person, on one
 machine. Expect rough edges, and please [open an issue](../../issues) when
 you hit one. That is exactly the feedback an alpha is for.
 
-**You need the community save-export tool** to get your dynasty out of the
-game and the roster editor to put it back in. This project does neither; it
-is the step in between.
+**You need two other community tools.** The export tool turns your dynasty
+into a folder of CSV files, and the roster editor imports a CSV back into the
+game. This project does neither — it is the step in between, and it only ever
+reads and writes CSVs.
 
 ## Getting started
 
@@ -82,10 +90,15 @@ README.txt                 quick start
 Keep `data\` and `templates\` next to the executables. Nothing to install —
 no .NET runtime, no Python, no setup.
 
-### 2. Export your dynasty
+### 2. Export your dynasty to CSVs
 
-Use the community save-export tool. It writes a folder of CSV files, one per
-table. Point the generator at that folder; it finds what it needs itself.
+Run the community export tool on your dynasty. It writes a **folder of CSV
+files, one per table** — `Player`, `Team`, and dozens more.
+
+That folder is what you give the generator in step 4. You do not need to work
+out which file is which: the Player and Team tables are found for you and the
+rest are ignored. (The Player CSV on its own also works; you just have to name
+the team yourself.)
 
 ### 3. Fill in a roster
 
@@ -113,7 +126,7 @@ See [docs/Roster_CSV_Format.md](docs/Roster_CSV_Format.md) for every column.
 
 Open **`RosterGenerator.Gui.exe`** and follow the four steps:
 
-1. Browse to your dynasty export folder.
+1. Browse to the folder of exported CSVs from step 2.
 2. Browse to your roster CSV — it is checked immediately and tells you about
    anything wrong **before** writing anything.
 3. Confirm the team and season.
@@ -139,10 +152,12 @@ Import `Generated_Roster.csv` with the community roster editor.
 
 Same engine, same results, for anyone who prefers it.
 
+`--dynasty` is the folder of exported CSVs (or the Player CSV itself).
+
 ```
-RosterGenerator.Cli.exe validate --roster MyRoster.csv --dynasty C:\path\to\export
-RosterGenerator.Cli.exe generate --roster MyRoster.csv --dynasty C:\path\to\export
-RosterGenerator.Cli.exe list-teams --dynasty C:\path\to\export
+RosterGenerator.Cli.exe validate --roster MyRoster.csv --dynasty C:\path\to\exported-csvs
+RosterGenerator.Cli.exe generate --roster MyRoster.csv --dynasty C:\path\to\exported-csvs
+RosterGenerator.Cli.exe list-teams --dynasty C:\path\to\exported-csvs
 ```
 
 `validate` checks your file and writes nothing. Run it with no arguments for
@@ -172,8 +187,14 @@ No. Name and position are the only required fields. More detail improves the
 ratings; none of it is required.
 
 **Will it overwrite my dynasty?**
-No. It reads your export and writes a *new* file. Importing is a separate
-step you take deliberately with the roster editor.
+No. It never touches your save — it only reads the exported CSVs and writes a
+*new* CSV. Getting anything back into the game is a separate step you take
+deliberately with the roster editor.
+
+**It says "No Player table found".**
+The folder you chose is not the one the export tool wrote. It should hold many
+CSV files, one of them the Player table. A save file cannot be read directly;
+export it first.
 
 **Can I do more than one team?**
 One team per roster file, one run per team. Run it again for the next team.
@@ -198,8 +219,8 @@ Yes — everything is in editable JSON in `data\`. Nothing is compiled in.
 - The relevant lines from `Generation_Report.txt`
 - Your roster CSV, if you can share it
 
-Please do **not** attach your full dynasty export — it is large and it is not
-usually needed.
+Please do **not** attach your full folder of exported CSVs — it is large and
+it is not usually needed.
 
 ## How it works, and how it was checked
 
@@ -215,7 +236,7 @@ team managed (3.02).
 
 ## Credits and licence
 
-Built on the community's save-export and roster-import tools; this project
+Built on the community's dynasty-export and roster-import tools; this project
 does neither and would not be possible without them.
 
 Player names, statistics and awards used in the examples are public
@@ -229,5 +250,5 @@ The generator is MIT licensed — see
 
 The rosters and examples here are compiled from public information. This is
 an unofficial fan project with no affiliation with EA Sports or any school,
-and it depends on the community's save-export and roster-import tools, which
-are separate projects with their own authors and terms.
+and it depends on the community's dynasty-export and roster-import tools,
+which are separate projects with their own authors and terms.

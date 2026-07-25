@@ -2,6 +2,10 @@
 
 Type in the players you can find; get back a complete, import-ready roster.
 
+Works on **CSV files, not save files**: export your dynasty to CSVs with the
+community export tool, point this at that folder, and import the CSV it writes
+with the community roster editor. Your save is never opened here.
+
 This release is about one thing: **the season you are recreating outranks
 what happened to the player afterwards.**
 
@@ -125,9 +129,9 @@ those players; the report names each one.
 
 ## Requires
 
-The community save-export tool to get your dynasty out of the game, and the
-community roster editor to put it back in. This project is the step in
-between and does neither.
+Two other community tools: the export tool that turns your dynasty into a
+folder of CSV files, and the roster editor that imports a CSV back into the
+game. This project is the step in between and does neither.
 
 ---
 
