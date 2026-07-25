@@ -1,0 +1,120 @@
+name: Release
+
+# Builds the Windows release and publishes it here.
+#
+# The source lives in elrey-430/cfb27-roster-generator. Because that
+# repository is public it can be checked out with no credentials, and the
+# release is created in *this* repository — so the job runs on the built-in
+# GITHUB_TOKEN and needs no personal access token. Running it the other way
+# round would need one, since a workflow's own token cannot create a release
+# in a different repository.
+#
+# Building on windows-latest rather than cross-compiling means the binaries
+# that reach users are produced on the platform they run on, the test suite
+# runs there, and the executable is launched there before packaging.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version, e.g. 0.1.0-alpha'
+        required: true
+        default: '0.1.0-alpha'
+      source_ref:
+        description: 'Branch or tag of cfb27-roster-generator to build'
+        required: true
+        default: 'main'
+      prerelease:
+        description: 'Mark as a pre-release'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    env:
+      SOURCE_REPO: elrey-430/cfb27-roster-generator
+      PACKAGE: CFB27-Roster-Generator-${{ inputs.version }}-win-x64
+
+    steps:
+      # This repository, for the release notes and the templates.
+      - uses: actions/checkout@v4
+        with:
+          path: dist-repo
+
+      - uses: actions/checkout@v4
+        with:
+          repository: elrey-430/cfb27-roster-generator
+          ref: ${{ inputs.source_ref }}
+          path: source
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # A release that fails its own tests should never reach a user.
+      - name: Test
+        working-directory: source
+        run: dotnet test --configuration Release --nologo
+
+      - name: Publish
+        shell: pwsh
+        working-directory: source
+        run: |
+          $out = "$env:GITHUB_WORKSPACE/dist/$env:PACKAGE"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $common = @(
+            '--configuration', 'Release',
+            '--runtime', 'win-x64',
+            '--self-contained',
+            '-p:PublishSingleFile=true',
+            '-p:EnableCompressionInSingleFile=true',
+            '-p:DebugType=none',
+            '-p:GenerateDocumentationFile=false',
+            "-p:Version=${{ inputs.version }}",
+            '--nologo'
+          )
+          dotnet publish src/RosterGenerator.Gui @common --output $out
+          dotnet publish src/RosterGenerator.Cli @common --output $out
+          Copy-Item QUICKSTART.md "$out/README.txt"
+
+      # Proves the executable actually starts on Windows.
+      - name: Smoke test on Windows
+        shell: pwsh
+        working-directory: source
+        run: |
+          $exe = "$env:GITHUB_WORKSPACE/dist/$env:PACKAGE/RosterGenerator.Cli.exe"
+          & $exe validate --roster Tests/2023_FSU_Input.csv
+          if ($LASTEXITCODE -ne 0) { throw "validate exited $LASTEXITCODE" }
+          & $exe list-teams --dynasty Tests/DonorDynasty | Select-Object -First 5
+          if ($LASTEXITCODE -ne 0) { throw "list-teams exited $LASTEXITCODE" }
+
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path "dist/$env:PACKAGE" -DestinationPath "dist/$env:PACKAGE.zip"
+
+      # Kept alongside the release: it is the fallback download if publishing
+      # ever fails, and it survives a deleted release.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE }}
+          path: dist/${{ env.PACKAGE }}.zip
+          retention-days: 30
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $releaseArgs = @(
+            'release', 'create', "v${{ inputs.version }}",
+            "dist/$env:PACKAGE.zip",
+            '--title', "v${{ inputs.version }}",
+            '--notes-file', 'dist-repo/RELEASE_NOTES.md'
+          )
+          if ('${{ inputs.prerelease }}' -eq 'true') { $releaseArgs += '--prerelease' }
+          gh @releaseArgs

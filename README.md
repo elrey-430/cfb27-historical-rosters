@@ -48,9 +48,10 @@ alpha software touching your save, and the import step is not ours.
 
 **Windows will warn you.** The executables are not code-signed, so
 SmartScreen shows *"Windows protected your PC"*. Click **More info** →
-**Run anyway**. If you would rather not, the source is in
+**Run anyway**. If you would rather not, the source is public at
 [cfb27-roster-generator](https://github.com/elrey-430/cfb27-roster-generator)
-and you can build it yourself.
+and you can build it yourself — and every release here is built from it by
+[a workflow you can read](.github/workflows/release.yml).
 
 **The app itself has not been clicked through by a human yet.** The release
 is built on a Windows machine, all 221 tests run there, and
@@ -222,3 +223,13 @@ does neither and would not be possible without them.
 Player names, statistics and awards used in the examples are public
 information. This is an unofficial fan project with no affiliation with EA
 Sports or any school.
+
+## Licence
+
+The generator is MIT licensed — see
+[the source repository](https://github.com/elrey-430/cfb27-roster-generator).
+
+The rosters and examples here are compiled from public information. This is
+an unofficial fan project with no affiliation with EA Sports or any school,
+and it depends on the community's save-export and roster-import tools, which
+are separate projects with their own authors and terms.
