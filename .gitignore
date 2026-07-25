@@ -1,0 +1,5 @@
+# Release binaries are attached to GitHub Releases, never committed:
+# they are ~65 MB zipped and git is the wrong place for them.
+dist/
+Output/
+*.zip
