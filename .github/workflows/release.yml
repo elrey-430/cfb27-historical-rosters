@@ -109,10 +109,16 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          # Both checkouts live in subdirectories, so the working directory is
+          # not a git repository and gh cannot infer which repo to act on. It
+          # fails in a couple of seconds with "failed to determine base
+          # repository", which reads like an auth problem and is not one.
+          GH_REPO: ${{ github.repository }}
         run: |
           $releaseArgs = @(
             'release', 'create', "v${{ inputs.version }}",
             "dist/$env:PACKAGE.zip",
+            '--repo', '${{ github.repository }}',
             '--title', "v${{ inputs.version }}",
             '--notes-file', 'dist-repo/RELEASE_NOTES.md'
           )
