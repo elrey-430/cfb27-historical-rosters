@@ -17,9 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version, e.g. 0.2.0-alpha'
+        description: 'Version, e.g. 0.2.1-alpha'
         required: true
-        default: '0.2.0-alpha'
+        default: '0.2.1-alpha'
       source_ref:
         description: 'Branch or tag of cfb27-roster-generator to build'
         required: true

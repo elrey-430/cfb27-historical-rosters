@@ -1,4 +1,4 @@
-# v0.2.0-alpha
+# v0.2.1-alpha
 
 Type in the players you can find; get back a complete, import-ready roster.
 
@@ -6,17 +6,35 @@ Works on **CSV files, not save files**: export your dynasty to CSVs with the
 community export tool, point this at that folder, and import the CSV it writes
 with the community roster editor. Your save is never opened here.
 
-This release is about one thing: **the season you are recreating outranks
-what happened to the player afterwards.**
-
 ## Download
 
-**`CFB27-Roster-Generator-0.2.0-alpha-win-x64.zip`** (66 MB)
+**`CFB27-Roster-Generator-0.2.1-alpha-win-x64.zip`** (66 MB)
 
 Unzip the whole folder and run `RosterGenerator.Gui.exe`. Nothing to
 install — no .NET runtime, no Python, no setup. Windows 10 or 11, 64-bit.
 
-## New in this release
+## New in 0.2.1
+
+**It now says what it actually wants from you.** The first step used to read
+*"Your dynasty export folder"*, which only makes sense if you already know
+the export tool turns a save into a folder of CSVs. If you did not, it read
+as "point this at my dynasty" — so you picked a save file, got *"No Player
+table found"*, and nothing told you what to do instead.
+
+That step is now **"Exported dynasty CSVs"**, with a line under it explaining
+that this tool does not read save files and that the Player and Team tables
+are found for you. The same correction runs through the command line, the
+error messages, the quick start and the format documentation, and the failure
+you get from pointing at the wrong place now ends with *"A save file cannot
+be read directly; export it first."*
+
+No behaviour changed. If v0.2.0-alpha is working for you, this only makes the
+first five minutes easier to get through.
+
+## The rest of 0.2.x
+
+Everything below arrived in v0.2.0-alpha and is about one thing: **the season
+you are recreating outranks what happened to the player afterwards.**
 
 ### A draft slot no longer outvotes the season
 
@@ -119,13 +137,18 @@ within a couple of points of each other.
   team.
 - **Back up your dynasty save** before importing anything.
 
-## Upgrading from v0.1.0-alpha
+## Upgrading
 
 Unzip over a fresh folder and use it. Roster files you have already written
-still work unchanged — `AwardContender` is a new optional column, not a
-change to any existing one. Rosters containing players whose draft slot
-disagrees with their season will generate slightly different ratings for
-those players; the report names each one.
+still work unchanged.
+
+From **v0.2.0-alpha**: nothing to do — 0.2.1 changes only what the tool says,
+never what it produces. The same inputs generate byte-identical output.
+
+From **v0.1.0-alpha**: `AwardContender` is a new optional column, not a change
+to any existing one. Rosters containing players whose draft slot disagrees
+with their season will generate slightly different ratings for those players;
+the report names each one.
 
 ## Requires
 

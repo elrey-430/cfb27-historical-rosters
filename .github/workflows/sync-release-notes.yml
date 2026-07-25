@@ -13,9 +13,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to update, e.g. v0.2.0-alpha'
+        description: 'Release tag to update, e.g. v0.2.1-alpha'
         required: true
-        default: 'v0.2.0-alpha'
+        default: 'v0.2.1-alpha'
 
 permissions:
   contents: write
