@@ -54,11 +54,13 @@ within a couple of points of each other.
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
-- **The binaries have not been run on real Windows.** They were
-  cross-compiled and the full 221-test suite passes, but nobody has yet
-  double-clicked the .exe on a Windows desktop. Please
-  [open an issue](../../issues) if it fails to launch — that is what an
-  alpha is for.
+- **Nobody has clicked through the app yet.** The release is built on a
+  Windows machine, all 221 tests run there, and `RosterGenerator.Cli.exe` is
+  launched and exercised there before packaging — so the command-line tool
+  is known to start and work. The window is tested only in an automated
+  harness; no human has sat in front of `RosterGenerator.Gui.exe` and used
+  it. Please [open an issue](../../issues) if anything looks wrong — that is
+  what an alpha is for.
 - **Replaced players keep the faces of the players they replaced.** The
   save's portrait fields are not yet understood.
 - **One team per run.** Recreating a whole season means running it once per

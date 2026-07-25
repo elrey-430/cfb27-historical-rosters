@@ -52,10 +52,14 @@ SmartScreen shows *"Windows protected your PC"*. Click **More info** →
 [cfb27-roster-generator](https://github.com/elrey-430/cfb27-roster-generator)
 and you can build it yourself.
 
-**The binaries are unverified on real Windows.** They were cross-compiled and
-the full test suite (221 tests) passes, but nobody has yet double-clicked the
-.exe on a Windows desktop. If it fails to launch, please
-[open an issue](../../issues) — that is exactly the feedback an alpha is for.
+**The app itself has not been clicked through by a human yet.** The release
+is built on a Windows machine, all 221 tests run there, and
+`RosterGenerator.Cli.exe` is launched and exercised there before packaging —
+so the command-line tool is known to start and work on Windows. The window
+is tested too, but only in an automated harness. Nobody has yet sat in front
+of `RosterGenerator.Gui.exe` and used it. If something looks wrong or does
+not open, please [open an issue](../../issues) — that is exactly the
+feedback an alpha is for.
 
 **You need the community save-export tool** to get your dynasty out of the
 game and the roster editor to put it back in. This project does neither; it
