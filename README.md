@@ -44,6 +44,9 @@ editor, in which those players exist on that team with:
   where you supplied them, believable ones where you did not.
 - **A full 85-man roster.** Slots you did not fill are given end-of-roster
   depth, so leftover fictional players stop starting ahead of your roster.
+- **Period-correct equipment.** Pick 1985 and the team wears Riddell TKs,
+  vintage masks, long sleeves and X-large pads. The season you already chose
+  is the only input.
 
 Every single value it decided for you is listed in a plain-English report.
 
@@ -60,7 +63,7 @@ SmartScreen shows *"Windows protected your PC"*. Click **More info** →
 and you can build it yourself — and every release here is built from it by
 [a workflow you can read](.github/workflows/release.yml).
 
-**It is early.** The release is built on a Windows machine, all 229 tests
+**It is early.** The release is built on a Windows machine, all 272 tests
 run there, and `RosterGenerator.Cli.exe` is launched and exercised there
 before packaging. The desktop app has been downloaded and clicked through on
 Windows to confirm it opens and works — but only once, by one person, on one
@@ -132,9 +135,12 @@ Open **`RosterGenerator.Gui.exe`** and follow the four steps:
 3. Confirm the team and season.
 4. Click **Generate**.
 
-You get two files in `Output\`:
+You get up to three files in `Output\`:
 
-- **`Generated_Roster.csv`** — this is the file you import.
+- **`Generated_Roster.csv`** — the players. Import this.
+- **`Generated_Equipment.csv`** — what they are wearing, when the season falls
+  in a known era. **Import this too** — equipment lives in a different table
+  of the save, so the editor needs both files.
 - **`Generation_Report.txt`** — every value filled in, corrected, or that
   could not be used, player by player. **Worth reading.**
 
@@ -203,6 +209,16 @@ One team per roster file, one run per team. Run it again for the next team.
 Run `list-teams` to see the names your dynasty uses, or add an alias to
 `data\TeamMappings.json`. The game spells some schools its own way —
 "Mississippi St", "W. Michigan".
+
+**My 1985 team is wearing modern helmets.**
+You imported only `Generated_Roster.csv`. Import `Generated_Equipment.csv` as
+well — it is a separate table in the save.
+
+**Which seasons get period equipment?**
+2010–2016, 2000–2009, 1990–1999, 1980–1989 and anything before 1980. A season
+outside those leaves equipment exactly as it was, because only helmets
+confirmed to exist in the game are ever written. The ranges live in
+`data\EquipmentEras.json` and are editable like everything else.
 
 **Why is a punter rated so high / a backup so low?**
 Open `Generation_Report.txt` and search for the player. Every decision is

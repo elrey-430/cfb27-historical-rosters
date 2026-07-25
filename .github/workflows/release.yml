@@ -17,9 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version, e.g. 0.2.1-alpha'
+        description: 'Version, e.g. 0.3.0-alpha'
         required: true
-        default: '0.2.1-alpha'
+        default: '0.3.0-alpha'
       source_ref:
         description: 'Branch or tag of cfb27-roster-generator to build'
         required: true
@@ -92,6 +92,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "validate exited $LASTEXITCODE" }
           & $exe list-teams --dynasty Tests/DonorDynasty | Select-Object -First 5
           if ($LASTEXITCODE -ne 0) { throw "list-teams exited $LASTEXITCODE" }
+
+          # Generate a period roster end to end, so the release cannot ship
+          # with the equipment data file missing from the package.
+          $out = "$env:RUNNER_TEMP/smoke"
+          & $exe generate --dynasty Tests/EquipmentDynasty --roster Tests/2023_FSU_Input.csv `
+              --team "Florida State" --season 1985 `
+              --output "$out/roster.csv" --report "$out/report.txt" `
+              --equipment-output "$out/equipment.csv"
+          if ($LASTEXITCODE -ne 0) { throw "generate exited $LASTEXITCODE" }
+          if (-not (Test-Path "$out/equipment.csv")) { throw "no equipment table was written" }
+          if (-not (Select-String -Path "$out/equipment.csv" -Pattern "GearHelmet_RiddellTK" -Quiet)) {
+            throw "the 1985 roster is not wearing period helmets"
+          }
+          Write-Host "equipment smoke test passed"
 
       - name: Package
         shell: pwsh
