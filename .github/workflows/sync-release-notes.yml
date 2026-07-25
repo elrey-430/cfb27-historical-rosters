@@ -1,0 +1,38 @@
+name: Sync release notes
+
+# Pushes RELEASE_NOTES.md onto an existing release.
+#
+# The release workflow attaches the notes when it first creates a release,
+# but the text keeps needing corrections after the binaries are already
+# published — a wrong figure, a limitation that no longer applies. Editing
+# the release by hand leaves the file in this repository disagreeing with
+# what people actually read, so this makes the file the source of truth and
+# the release a copy of it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to update, e.g. v0.1.0-alpha'
+        required: true
+        default: 'v0.1.0-alpha'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update the release body
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release edit "${{ inputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --notes-file RELEASE_NOTES.md
+          echo "::notice::Updated the notes on ${{ inputs.tag }} from RELEASE_NOTES.md."

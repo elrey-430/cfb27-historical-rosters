@@ -6,7 +6,7 @@ Type in the players you can find; get back a complete, import-ready roster.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.1.0-alpha-win-x64.zip`** (65 MB)
+**`CFB27-Roster-Generator-0.1.0-alpha-win-x64.zip`** (66 MB)
 
 Unzip the whole folder and run `RosterGenerator.Gui.exe`. Nothing to
 install — no .NET runtime, no Python, no setup. Windows 10 or 11, 64-bit.
@@ -54,13 +54,13 @@ within a couple of points of each other.
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
-- **Nobody has clicked through the app yet.** The release is built on a
-  Windows machine, all 221 tests run there, and `RosterGenerator.Cli.exe` is
-  launched and exercised there before packaging — so the command-line tool
-  is known to start and work. The window is tested only in an automated
-  harness; no human has sat in front of `RosterGenerator.Gui.exe` and used
-  it. Please [open an issue](../../issues) if anything looks wrong — that is
-  what an alpha is for.
+- **Lightly used so far.** The release is built on a Windows machine, all
+  221 tests run there, and `RosterGenerator.Cli.exe` is launched and
+  exercised there before packaging. The desktop app has been downloaded and
+  clicked through on Windows to confirm it opens and works — but only once,
+  by one person, on one machine. Expect rough edges, and please
+  [open an issue](../../issues) when you hit one. That is what an alpha is
+  for.
 - **Replaced players keep the faces of the players they replaced.** The
   save's portrait fields are not yet understood.
 - **One team per run.** Recreating a whole season means running it once per

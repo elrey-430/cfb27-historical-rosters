@@ -53,14 +53,12 @@ SmartScreen shows *"Windows protected your PC"*. Click **More info** →
 and you can build it yourself — and every release here is built from it by
 [a workflow you can read](.github/workflows/release.yml).
 
-**The app itself has not been clicked through by a human yet.** The release
-is built on a Windows machine, all 221 tests run there, and
-`RosterGenerator.Cli.exe` is launched and exercised there before packaging —
-so the command-line tool is known to start and work on Windows. The window
-is tested too, but only in an automated harness. Nobody has yet sat in front
-of `RosterGenerator.Gui.exe` and used it. If something looks wrong or does
-not open, please [open an issue](../../issues) — that is exactly the
-feedback an alpha is for.
+**It is early.** The release is built on a Windows machine, all 221 tests
+run there, and `RosterGenerator.Cli.exe` is launched and exercised there
+before packaging. The desktop app has been downloaded and clicked through on
+Windows to confirm it opens and works — but only once, by one person, on one
+machine. Expect rough edges, and please [open an issue](../../issues) when
+you hit one. That is exactly the feedback an alpha is for.
 
 **You need the community save-export tool** to get your dynasty out of the
 game and the roster editor to put it back in. This project does neither; it
