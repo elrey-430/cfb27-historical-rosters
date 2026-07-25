@@ -146,11 +146,13 @@ You get up to three files in `Output\`:
 
 ### 5. Import
 
-Import `Generated_Roster.csv` with the community roster editor.
+Import `Generated_Roster.csv` with the community roster editor — **and
+`Generated_Equipment.csv` too if one was written.** They are two different
+tables in the save; importing only the first leaves a 1985 team in modern
+helmets.
 
 > If the editor says **"CSV file is missing required column `_tableIndex`"**,
-> you handed it your *input* file. Import `Output\Generated_Roster.csv`
-> instead.
+> you handed it your *input* file. Import the files from `Output\` instead.
 
 ---
 
