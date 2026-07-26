@@ -39,7 +39,14 @@ editor, in which those players exist on that team with:
 - **Ratings computed from EA's own overall formulas.** Not invented — the
   actual formulas, all 79 of them, one per position/archetype pair. Verified
   against a full dynasty export at 99.33% exact over 16,257 players.
-- **A sensible archetype**, with the overall recomputed to match it.
+- **A sensible archetype**, with the overall *and the attributes* recomputed
+  to match it. A back who caught passes runs routes; a scrambling quarterback
+  breaks tackles. Each archetype's attribute profile is measured from the
+  16,256 players in a real dynasty export rather than written down by hand.
+- **Attributes that follow the stats you typed in.** Receiving yards lift
+  catching and route running, rushing yards lift ball carrying, sacks lift
+  pass-rush moves — every position, not only the skill spots. A statistic you
+  could not find never costs a player anything.
 - **Real heights, weights, hometowns, class years and jersey numbers**
   where you supplied them, believable ones where you did not.
 - **A full 85-man roster.** Slots you did not fill are given end-of-roster
@@ -47,6 +54,9 @@ editor, in which those players exist on that team with:
 - **Period-correct equipment.** Pick 1985 and the team wears Riddell TKs,
   vintage masks, long sleeves and X-large pads. The season you already chose
   is the only input.
+- **A face that is not a real person's.** Most slots in a base save carry the
+  head scan of a present-day player, so a recreated 1985 team used to wear
+  them under other people's names. It no longer does.
 
 Every single value it decided for you is listed in a plain-English report.
 
@@ -63,12 +73,13 @@ SmartScreen shows *"Windows protected your PC"*. Click **More info** →
 and you can build it yourself — and every release here is built from it by
 [a workflow you can read](.github/workflows/release.yml).
 
-**It is early.** The release is built on a Windows machine, all 272 tests
+**It is early.** The release is built on a Windows machine, all 295 tests
 run there, and `RosterGenerator.Cli.exe` is launched and exercised there
 before packaging. The desktop app has been downloaded and clicked through on
 Windows to confirm it opens and works — but only once, by one person, on one
 machine. Expect rough edges, and please [open an issue](../../issues) when
-you hit one. That is exactly the feedback an alpha is for.
+you hit one. That is exactly the feedback an alpha is for — the ratings work
+in v0.4.0 exists because two people opened one.
 
 **You need two other community tools.** The export tool turns your dynasty
 into a folder of CSV files, and the roster editor imports a CSV back into the
@@ -192,7 +203,16 @@ Everything it decides is written down. It never changes your data silently.
 
 **Do I need every player's stats?**
 No. Name and position are the only required fields. More detail improves the
-ratings; none of it is required.
+ratings; none of it is required. Since v0.4.0 stats are worth more than they
+used to be — they shape a player's individual attributes, not just how good he
+is overall — but a stat you cannot find never counts against him.
+
+**I regenerated an old roster and the attributes all changed.**
+Expected in v0.4.0. Overall ratings stay exactly where they were; what moved is
+each player's *shape*, onto the values the game itself gives their archetype.
+On a full 85-man team that is typically ~150 attributes moving 30 points or
+more. If you had hand-edited a generated roster in the community editor, those
+edits live in the editor — regenerating starts from your export again.
 
 **Will it overwrite my dynasty?**
 No. It never touches your save — it only reads the exported CSVs and writes a
@@ -225,6 +245,17 @@ confirmed to exist in the game are ever written. The ranges live in
 **Why is a punter rated so high / a backup so low?**
 Open `Generation_Report.txt` and search for the player. Every decision is
 explained there, including which signals fired and how confident it was.
+
+**I disagree with one player's ratings.**
+Fair enough — it estimates from what you gave it, and on a marquee player you
+know better than a formula does. Everything it writes is editable in the
+community roster editor afterwards. The report will at least tell you *why* it
+landed where it did, which usually points at a missing award or stat line.
+
+**My all-time roster is all wearing the same era's helmets.**
+The tool takes one season per run, so a file with a different `Season` on every
+row resolves to one of them and the equipment era follows that. Nothing else
+about an all-time roster is affected.
 
 **Can I change how ratings work?**
 Yes — everything is in editable JSON in `data\`. Nothing is compiled in.
