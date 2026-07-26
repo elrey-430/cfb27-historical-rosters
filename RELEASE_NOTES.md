@@ -1,4 +1,4 @@
-# v0.3.0-alpha
+# v0.4.0-alpha
 
 Type in the players you can find; get back a complete, import-ready roster.
 
@@ -8,16 +8,105 @@ writes with the community roster editor. Your save is never opened here.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.3.0-alpha-win-x64.zip`** (66 MB)
+**`CFB27-Roster-Generator-0.4.0-alpha-win-x64.zip`** (66 MB)
 
 Unzip the whole folder and run `RosterGenerator.Gui.exe`. Nothing to
 install — no .NET runtime, no Python, no setup. Windows 10 or 11, 64-bit.
 
-## New in 0.3.0 — period-correct equipment
+## New in 0.4.0 — attributes that match the player
 
-**A 1985 roster now wears 1985 helmets.** Pick the season you are recreating
-and the team's head gear, jersey cut and shoulder pads follow it. You fill in
-nothing extra; the year you already chose is the whole input.
+**Two of you reported the same bug from opposite sides, and you were both
+right.**
+
+One generated Marcus Allen — a back who caught 34 passes — and got **30 in
+every route-running attribute**. Another generated Marqise Lee, a receiver,
+and got **34 juke and 30 trucking**. A Jordan Travis who ran for 485 yards
+came out at 35 break tackle.
+
+The generator had already worked out what kind of player each of them was: it
+put Allen in a receiving back's archetype and Travis in a scrambler's. Then it
+built their attributes from a written-down list that named only some of the 56
+ratings, and everything the list forgot fell to 30.
+
+### The fix is a measurement, not a better opinion
+
+Writing a better list would just be somebody's opinion of what a receiving
+back ought to be good at, and there are 59 archetypes and 56 attributes — 3,304
+opinions.
+
+So the generator now measures the game instead. Across the **16,256 players**
+in a real dynasty export it works out what the game itself gives every
+archetype at every overall — all 59 of them, all 56 attributes — and starts
+each recreated player from there.
+
+| | before | now |
+|---|---|---|
+| Receiving back, route running | 30 / 30 / 30 | what the game gives receiving backs |
+| Receiver, juke and trucking | 34 / 30 | what the game gives receivers |
+| Scrambling quarterback, break tackle | 35 | what the game gives scramblers |
+
+The check that this is right: feed one of those measured players back through
+EA's own overall formula and it returns the overall they were built for, to
+within a third of a point, for 56 of the 59 archetypes.
+
+### What a player did now shows up where they did it
+
+Beyond the archetype, the statistics you type in move the attributes they were
+earned with. Receiving yards lift catching and route running. Rushing yards
+lift ball carrying and elusiveness. Sacks lift pass-rush moves. Interceptions
+lift coverage. Every position on the roster, not only the skill positions.
+
+*How far* it moves is measured too — by how much the game's own players of
+that archetype differ from each other. Nothing is nudged by a number somebody
+picked.
+
+**It only ever moves attributes up.** A 1968 receiver whose catches nobody
+wrote down must not be marked down for the gap, so a statistic you cannot find
+costs that player nothing.
+
+### A second job now counts
+
+A running back used to be judged only on running, so a back who caught 37
+passes tied with a back who caught none. Now a real second role — a back who
+caught, a quarterback who ran — adds to the overall, within a limit, so the
+roster's shape still comes from the main job.
+
+### What did not change
+
+**Roster strength.** Regenerating a full 85-man team before and after this
+release leaves **every single overall identical**. What moved is the shape of
+each player, not how good they are: 147 attributes on that roster moved 30
+points or more, into the range the game actually uses.
+
+**Your files.** The input format is unchanged. Re-run a roster CSV you already
+wrote and you get the same players, better rated.
+
+## Also new in 0.4.0 — recreated players stop wearing real people's faces
+
+A replaced player used to inherit the head of whoever held that roster slot,
+and **9,011 of the 16,257 players in a base save wear a scan of a real
+present-day player** — around 71 of the 85 slots on a typical team. So most of
+a recreated 1985 roster wore recognisable modern faces under other people's
+names. On the Florida State example that was 71 slots; it is now 7, and those
+7 are leftover slots still carrying their own player.
+
+Those slots now get a **generated face taken from your own export** — never an
+invented asset name — with the portrait field written to match. The choice is
+seeded from the player's roster slot, so the same roster regenerates
+identically every time. Every substitution is listed in the report, and
+`--faces inherit` on the command line restores the old behaviour.
+
+**Not attempted: matching a historical player to a real scan.** The scans are
+present-day players, so the overlap with any historical season is close to
+nil — and guessing what a real person looked like from their name is not
+something this tool should do. If you know the right head, name it yourself;
+that is your call, not an inference.
+
+## Everything from 0.3.0 is still here
+
+**Period-correct equipment.** Pick the season and the team's head gear, jersey
+cut and shoulder pads follow it. You fill in nothing extra; the year you
+already chose is the whole input.
 
 | Season | Helmets | Sleeves | Pads |
 |---|---|---|---|
@@ -27,27 +116,12 @@ nothing extra; the year you already chose is the whole input.
 | 1980–1989 | Riddell TK, vintage masks | Long | X-Large |
 | before 1980 | Riddell TK, Vintage Two Bar | Long | X-Large |
 
-A season outside those ranges changes nothing at all.
+A season outside those ranges changes nothing at all. Each player's current
+helmet decides what they move to, so a squad stays mixed rather than turning
+into 85 identical shells, and facemasks follow the position the way the game's
+own rosters do it.
 
-### Your squad stays mixed
-
-Real teams were never uniform, so the generator does not put 85 identical
-helmets on a roster. Each player's **current helmet decides what they move
-to** — a Riddell wearer takes the Riddell of the day and a Schutt wearer the
-Schutt. In the 2000s Riddell's own line splits: a SpeedFlex wearer belongs in
-a Revolution, an Axiom wearer in a VSR-4, because both shells were in college
-use at once. Players in a brand that did not exist yet — Vicis, Light — take
-the era's common shell, since there is no same-brand answer for them.
-
-### Masks follow the position
-
-A kicker gets a kicker cage, a centre a full cage, an edge rusher a robot, a
-quarterback an open bar — the way the game's own rosters do it, where 92–98%
-of kickers and punters wear a kicker cage. In the 1980s the line is spread
-across the heavier vintage masks instead of all wearing one, chosen from each
-player's own record so the same roster always regenerates identically.
-
-### There is now a second file to import
+### There are two files to import
 
 ```
 Output\Generated_Roster.csv      the players
@@ -55,129 +129,58 @@ Output\Generated_Equipment.csv   what they are wearing
 ```
 
 **Import both.** Equipment lives in a different table of the save from the
-players, so the roster editor needs each file. The report lists every player
-whose helmet changed and what it changed from.
-
-The equipment file is only written when something actually changed, so a
-season with no era leaves you with the roster alone, exactly as before.
-
-### How this was worked out
-
-Equipment is not in the player table at all. Exporting one dynasty twice —
-identical but for a handful of helmets changed in the roster editor — changed
-exactly **one file out of 2,273**, and every asset name the generator writes
-was read out of a diff like that rather than guessed. The names are not the
-editor's labels: the Riddell VSR-4 is stored as `standardBrady`, and the shell
-the editor calls "Schutt Air XP" is the real-world Air Advantage and a
-different asset from the Air XP Pro VTD. Nothing unconfirmed is ever written,
-which is why an unlisted season leaves your equipment alone instead of
-guessing at it.
-
-## The rest of 0.2.x
-
-Everything below arrived in v0.2.0-alpha and is about one thing: **the season
-you are recreating outranks what happened to the player afterwards.**
-
-### A draft slot no longer outvotes the season
-
-Draft position is the heaviest signal the generator uses, and the only one
-that looks *backwards* from the season being recreated: it records where the
-NFL took a player months later, which is a different question from how they
-played. An injury, a position the league does not value, or a bad combine
-all move it without moving anything that happened on the field.
-
-When a draft slot sits well below what a player's awards and statistics say,
-the generator now trusts the record of the season more, and the report
-explains why:
-
-```
-Draft position counted for less: Drafted #171 overall sits 14 points below
-this player's awards (conference player of the year). A draft slot records
-where the NFL took someone months later, not how they played in this season.
-```
-
-The slot is not thrown away — a late pick is still information — it just
-stops overriding the season itself. The rule is deliberately narrow: it fires
-on 3 of the 75 players in the Florida State example, and recruiting stars
-cannot trigger it, since they predate the season and are no better a witness
-to it than the draft is.
-
-### A new `AwardContender` column
-
-For awards a player was **in contention for** without winning — a finalist, a
-semifinalist, someone who was in the conversation. Same award names as
-`Awards`, scored a few points lower:
-
-```csv
-FirstName,LastName,Position,Awards,AwardContender
-Jordan,Travis,QB,Conference Player of the Year,Heisman
-```
-
-A Heisman finalist therefore out-rates a first-team all-conference winner,
-which is the right ordering and is not what taking whichever happens to be a
-"win" would produce. It matters most when a season ended early: what a player
-was in contention for before an injury is often the truest thing left in the
-record.
-
-Blank behaves exactly as if the column were absent — like every other
-optional column, it costs nothing to ignore.
-
-### A correction to the Florida State example
-
-Jordan Travis **won** the 2023 ACC Player of the Year and ACC Offensive
-Player of the Year and finished fifth in Heisman voting; the example file had
-him at first-team all-conference — two tiers low, on the best season on the
-team. Corrected. He now generates at 88 rather than 83, led by the award
-rather than by the fifth round he went in after breaking his leg in November.
+players, so the roster editor needs each file. The equipment file is only
+written when something actually changed.
 
 ## What it produces
 
 - Ratings computed with **EA's own overall formulas** — all 79 of them, one
   per position/archetype pair. Verified against a full dynasty export at
   99.33% exact across 16,257 players.
-- An archetype per player, with the overall recomputed to match it.
+- An archetype per player, with the overall recomputed to match it, and now
+  the attributes to match it as well.
 - Heights, weights, hometowns, class years, jersey numbers and transfer
   origins.
 - A **complete 85-man roster** — slots you did not supply are filled as
   end-of-roster depth, so leftover fictional players stop starting ahead of
   your roster.
-- A plain-English report listing every value it decided for you, and now
-  every signal it decided to trust less.
+- Period-correct equipment and a face that is not a real person's.
+- A plain-English report listing every value it decided for you and why.
 
-A generated 2023 Florida State roster tracks the shape of the roster the game
-itself ships for Florida State to within **2.07 overall points per roster
+A generated 2023 Florida State roster still tracks the shape of the roster the
+game itself ships for Florida State to within **2.07 overall points per roster
 rank** — closer than a hand-built recreation of the same team managed (3.02).
-That is a shade wider than v0.1.0's 2.01, and deliberately so: the benchmark
-compares against the game's *generic* Florida State roster, and rating a
-top-heavy team's best player correctly moves away from that curve.
 
 ## You only need the basics
 
 `FirstName`, `LastName` and `Position` are the only required columns. Old
 rosters are badly documented and you are not expected to find a complete
-record for every player — everything you leave out is filled in and listed
-in the report.
+record for every player — everything you leave out is filled in and listed in
+the report.
 
 Adding `Role` (`Starter` / `Backup` / `Reserve` / `Walk-on`) is the cheapest
 improvement by far: without it, players you supply nothing else for all land
-within a couple of points of each other.
+within a couple of points of each other. After that, statistics are now worth
+more than they were — they shape the player, not just their overall.
 
 ## Known limitations
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
 - **Lightly used so far.** The release is built on a Windows machine, all
-  272 tests run there, and `RosterGenerator.Cli.exe` is launched and
-  exercised there before packaging. The desktop app has been downloaded and
-  clicked through on Windows to confirm it opens and works — but only once,
-  by one person, on one machine. Expect rough edges, and please
+  295 tests run there, and `RosterGenerator.Cli.exe` is launched and
+  exercised there before packaging. Expect rough edges, and please
   [open an issue](../../issues) when you hit one. That is what an alpha is
   for.
-- **Replaced players keep the faces of the players they replaced.** The
-  save's portrait fields are not yet understood.
+- **The generator will not always agree with you about a particular player.**
+  It rates what you feed it, as fairly as it can, from what the game itself
+  does. Where you disagree, everything it writes is editable in the community
+  roster editor afterwards.
+- **Faces are generated, not chosen.** A recreated player gets a face that is
+  nobody in particular rather than a resemblance.
 - **Equipment covers head gear, sleeves and pads only.** The uniform loadout
-  has 32 slots — gloves, shoes, visors, sleeves, towels — and three are
-  decoded. The rest keep whatever the save had.
+  has 32 slots — gloves, shoes, visors, towels — and three are decoded. The
+  rest keep whatever the save had.
 - **A few period gaps.** No Revolution two-bar has been confirmed, so 2000s
   quarterbacks take the skill mask; the Riddell TK has no confirmed kicker
   mask, so pre-1990 kickers take the era default.
@@ -187,18 +190,21 @@ within a couple of points of each other.
 
 ## Upgrading
 
-Unzip over a fresh folder and use it. Roster files you have already written
-still work unchanged — equipment is driven by the season you were already
-supplying, so there is no new column to add.
+Unzip over a fresh folder and use it. No roster file you have already written
+needs a change — there is no new column.
 
-The one thing to know: if your season falls in one of the ranges above you
-will now get a **second output file**, and importing only the roster will
-leave your players in modern helmets. Ratings are unchanged from v0.2.1.
+What will differ: **re-generating an existing roster changes its attributes**,
+and on most players it changes them a lot. Overalls stay where they were.
+Faces will change on any slot that carried a real player's scan. If you have
+already hand-edited a generated roster in the community editor, your edits are
+in the editor, not here — re-generating starts from the export again.
 
-From **v0.1.0-alpha**: `AwardContender` is also a new optional column, and
-rosters containing players whose draft slot disagrees with their season will
-generate slightly different ratings for those players; the report names each
-one.
+From **v0.2.x**: importing only the roster file leaves your players in modern
+helmets; import the equipment file too.
+
+From **v0.1.0-alpha**: `AwardContender` is a new optional column, and rosters
+containing players whose draft slot disagrees with their season generate
+different ratings for those players; the report names each one.
 
 ## Requires
 
