@@ -56,6 +56,12 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      # Only to run npm here. The runtime that SHIPS is downloaded below and
+      # pinned; this one never leaves the runner.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       # A release that fails its own tests should never reach a user.
       - name: Test
         working-directory: source
@@ -82,6 +88,37 @@ jobs:
           dotnet publish src/RosterGenerator.Cli @common --output $out
           Copy-Item QUICKSTART.md "$out/README.txt"
 
+      # The save reader: the scripts the app calls, their dependencies, and a
+      # private copy of the Node runtime so the user installs nothing. Without
+      # this the release cannot open a dynasty save at all.
+      - name: Bundle the save reader
+        shell: pwsh
+        working-directory: source/tools/native-save
+        run: |
+          npm install --omit=dev --no-audit --no-fund
+          $tools = "$env:GITHUB_WORKSPACE/dist/$env:PACKAGE/tools/native-save"
+          New-Item -ItemType Directory -Force -Path "$tools/runtime" | Out-Null
+          # Only the four scripts the application calls; the rest of the folder
+          # is the rig the save format was worked out with.
+          Copy-Item extract.mjs, apply.mjs, save.mjs, csv.mjs, package.json, README.md -Destination $tools
+          Copy-Item node_modules -Destination "$tools/node_modules" -Recurse
+
+          $nodeVersion = 'v22.23.1'   # LTS "Jod"; the library needs >= 22.19
+          $base = "https://nodejs.org/dist/$nodeVersion"
+          Invoke-WebRequest "$base/win-x64/node.exe" -OutFile "$tools/runtime/node.exe"
+          Invoke-WebRequest "$base/SHASUMS256.txt"   -OutFile "$env:RUNNER_TEMP/SHASUMS256.txt"
+          Invoke-WebRequest "https://raw.githubusercontent.com/nodejs/node/$nodeVersion/LICENSE" `
+              -OutFile "$tools/runtime/LICENSE-nodejs.txt"
+
+          # Verified against nodejs.org's own checksums. A binary this project
+          # ships to users is not taken on trust.
+          $expected = (Select-String -Path "$env:RUNNER_TEMP/SHASUMS256.txt" -Pattern 'win-x64/node\.exe').Line.Split(' ')[0]
+          $actual = (Get-FileHash "$tools/runtime/node.exe" -Algorithm SHA256).Hash.ToLower()
+          if ($expected -ne $actual) {
+            throw "node.exe checksum mismatch: expected $expected, got $actual"
+          }
+          Write-Host "Node $nodeVersion bundled and verified ($actual)"
+
       # Proves the executable actually starts on Windows.
       - name: Smoke test on Windows
         shell: pwsh
@@ -106,6 +143,22 @@ jobs:
             throw "the 1985 roster is not wearing period helmets"
           }
           Write-Host "equipment smoke test passed"
+
+          # The bundled runtime has to actually run on Windows. The release is
+          # built on Linux during development, where that cannot be checked.
+          $node = "$env:GITHUB_WORKSPACE/dist/$env:PACKAGE/tools/native-save/runtime/node.exe"
+          $runtimeVersion = & $node --version
+          if ($LASTEXITCODE -ne 0) { throw "the bundled node.exe did not run" }
+          Write-Host "bundled runtime: $runtimeVersion"
+
+          # And it has to load the save-format library, which is what proves
+          # node_modules survived packaging. Run from the tools folder so the
+          # module resolves exactly as it will for a user.
+          Push-Location "$env:GITHUB_WORKSPACE/dist/$env:PACKAGE/tools/native-save"
+          & $node -e "const m = require('madden-franchise'); if (!m.FranchiseFile) { throw new Error('no FranchiseFile export'); } console.log('save reader loads');"
+          $loaded = $LASTEXITCODE
+          Pop-Location
+          if ($loaded -ne 0) { throw "the save reader could not be loaded" }
 
       - name: Package
         shell: pwsh
