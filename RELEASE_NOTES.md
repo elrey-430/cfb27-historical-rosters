@@ -1,139 +1,168 @@
-# v0.5.0-alpha
+# v0.6.0-alpha
 
 Type in the players you can find; get back a complete, import-ready roster.
 
-Works on **CSV files, not save files**: export your dynasty to CSVs with the
-community export tool, point this at that folder, and import the CSVs it
-writes with the community roster editor. Your save is never opened here.
+**New in this release: it reads and writes your dynasty save directly.** Point
+it at your save, hand it a roster, get a new save you load in the game. No
+export step. No separate roster importer.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.5.0-alpha-win-x64.zip`** (66 MB)
+**`CFB27-Roster-Generator-0.6.0-alpha-win-x64.zip`** (122 MB)
 
 Unzip the whole folder and run `RosterGenerator.Gui.exe`. Nothing to
-install — no .NET runtime, no Python, no setup. Windows 10 or 11, 64-bit.
+install — no .NET runtime, no Python, no Node, no setup. Windows 10 or 11,
+64-bit.
 
-## New in 0.5.0 — one file in, one file out
+## New in 0.6.0 — drop your dynasty in, get your dynasty back
 
-**Give it the `.zip`.** If you moved your export between machines, what you
-actually have is a zip, not the folder that was inside it. Unpacking it first
-was a step that only existed because the tool could not read an archive. It
-can now — there is a **`.zip…`** button beside **Browse** — and on the command
-line `--dynasty` takes either.
+Until now this tool sat between two other programs. You exported your dynasty
+to CSVs with the community export tool, ran this, then imported the result
+with the community roster editor. **Two of those three steps are gone.**
 
-**And it can hand the whole dynasty back as one file.** `--package
-MyDynasty-generated.zip` writes your entire export back out with the generated
-tables inside it, instead of loose CSVs for you to place.
+In the app: click **Save file…**, pick your dynasty out of
+`Documents\EA SPORTS College Football 27\saves`, choose your roster, and tick
+**write a new dynasty save**. From the command line:
 
-What matters there is not that it round-trips. It is that **everything the
-tool did not generate comes back byte for byte.** An export is 2,273 files and
-this tool understands two of them; the other 2,271 have to survive untouched
-or a package is worse than the loose CSVs it replaces. Checked against five
-fresh dynasty saves:
+```
+RosterGenerator.Cli.exe generate --roster 2023_FSU.csv ^
+    --dynasty "...\saves\DYNASTY-BASE1" ^
+    --save-out "...\saves\DYNASTY-2023FSU"
+```
 
-| | files in | identical out | replaced |
-|---|---|---|---|
-| default coach, base roster | 2,273 | 2,271 | Player, CharacterVisuals |
-| default coach, live roster | 2,273 | 2,271 | Player, CharacterVisuals |
-| custom coach, base roster | 2,275 | 2,273 | Player, CharacterVisuals |
-| custom coach, live roster | 2,275 | 2,273 | Player, CharacterVisuals |
+Then load it in the game.
 
-**Your dynasty is never modified.** Reading a zip expands it to a scratch
-folder that is deleted afterwards; writing always creates a *new* archive. If
-you dislike the result you still have the original.
+### Nothing to install
 
-The loose `Generated_Roster.csv` and `Generated_Equipment.csv` are still
-written exactly as before — `--package` is an extra, not a replacement.
+The download carries everything needed to read a save, **including its own
+copy of the Node.js runtime** (v22.23.1 LTS, MIT licensed, checksum-verified
+against nodejs.org while the release is being built). You do not install Node.
+You do not run a package manager.
 
-## Also new — your roster can say what its players looked like
+That copy is *private* to this application, so whatever else on your machine
+wants a different version cannot break it, and it cannot break them.
 
-The full template has a new optional **`SkinTone`** column: EA's **1
-(lightest) to 8 (darkest)**, the same numbering the game uses. Blank is the
-normal case.
+It is why the download is 122 MB rather than 66 MB. That is the whole cost,
+and it buys:
 
-**It is something you say, never something the tool guesses.** This generator
-will not infer what a real person looked like from their name, their hometown
-or the position they played. You know who these players are; it does not. Fill
-in the handful of players you care about and leave the rest blank.
+| Before | Now |
+|---|---|
+| Export dynasty → run this → import with a roster editor | Run this |
+| Three programs | One |
+| A 27 MB CSV to place correctly | A save file you load in the game |
+| Equipment changes imported as a second file | Written into the same save |
 
-### Blank got better too
+**Nothing is taken away.** The export-to-CSV workflow works exactly as it
+always has, is still first-class, and is still what runs if you point
+`--dynasty` at an export folder. If the `tools\native-save` folder goes
+missing the tool says so plainly instead of failing obscurely.
 
-Replacing a real player's head scan with a generated face used to change how a
-player looked as a side effect — which is a strange thing to happen when the
-whole point of the swap was to stop them wearing somebody else's likeness.
+### What is guaranteed about writing a save
 
-**A face swap now keeps the skin tone the roster slot already had.** On a
-2014 Florida State roster: 6 of 6 requested tones came out exactly right, and
-of the other 79 players, **79 kept their tone and none moved.**
+This is your dynasty, so the rules are strict, and they are tested:
 
-### Small print worth knowing
+- **Your save is never modified.** The output is always a new file, and
+  writing over the file you gave it is refused outright.
+- **Only fields that actually differ are written.** Every field is read back
+  out of the save and compared first. Recreating the 2023 Florida State roster
+  wrote 5,461 fields, changed 85 rows on Florida State and **zero rows
+  anywhere else** in a 16,500-player table.
+- **Empty roster slots are left alone.** A save keeps pre-allocated slots
+  holding no player; 243 of them were untouched in that run.
+- **A game patch cannot corrupt your dynasty through this.** The save format
+  version is checked, and a version this build does not recognise refuses to
+  write rather than guessing where fields live.
 
-- A value outside 1–8 is **ignored and reported**, not rounded into range.
-  Quietly turning a typed `10` into the darkest tone in the game would hand
-  you a player you never asked for.
-- Setting a tone means **choosing a different face**, not moving a slider. A
-  generated head carries its own tone, and each head is only ever used at one.
-  If your export happens to have no face at the tone you asked for, the
-  nearest is used and the report says so.
-- Nothing is invented: every face written already exists in your own export.
-- `--faces inherit` ignores the column, with a warning, so the flag cannot
-  quietly stop meaning what it says.
+Before any of this shipped: reading a save was checked against the community
+export tool's own output — **4,584,474 field comparisons across 16,257
+players, zero mismatches** — and unpacking then repacking a save with no edits
+was checked to return a **byte-identical 30 MB database**, on five different
+dynasties.
 
-## Everything from 0.4.0 is still here
+**Back up your save anyway.** It costs you one copy-paste.
 
-- **Attributes that match the player.** Each archetype's attribute profile is
-  measured from the 16,256 players in a real dynasty export, so a back who
-  caught passes runs routes and a scrambling quarterback breaks tackles.
-- **Stats shape the player, not just the overall.** Receiving yards lift
-  catching and route running, sacks lift pass rush, interceptions lift
-  coverage — every position. A stat you cannot find never costs anyone
-  anything.
-- **Faces.** Recreated players do not wear the head scan of a real
-  present-day player.
-- **Period-correct equipment.** Pick the season and helmets, jersey cut and
-  shoulder pads follow it. Remember to import **both** output files.
-- **A complete 85-man roster**, ratings from EA's own overall formulas, and a
-  plain-English report of every decision.
+## Also new — a whole season at once
+
+```
+RosterGenerator.Cli.exe template --dynasty <your dynasty> --season 2010 --output 2010.csv
+```
+
+That writes a blank roster file for the **entire year**: every team that
+played, each with its 85 slots, `Team`, `Season` and `Position` already filled
+in. For 2010 that is 119 teams and 10,115 rows. Fill it in — a spreadsheet
+assistant is very good at this — then generate it in one run.
+
+One roster file can now carry **any number of teams**, and they all convert
+into a single output.
+
+**Teams that were not in the FBS yet are left out, and named on the way past.**
+CFB27 ships today's 138 teams, so a 2010 season built from that list would
+quietly include Sacramento State, James Madison, Liberty, Coastal Carolina and
+a dozen more schools that were still in the FCS — and nothing in the game
+would tell you. The dates live in `data\FbsMembership.json` and are yours to
+correct; it is advice, never a refusal.
+
+## Also new — the height column is now `HeightInches`
+
+**Write `74`, not `6-2`.**
+
+If you have been filling the template with Excel or a spreadsheet assistant
+and heights kept coming out wrong, this was why: Excel decides `6-2` is the
+2nd of June the moment it opens the file, and writes back `2-Jun` or the
+number behind that date. The height was destroyed before this tool ever saw
+it.
+
+The column name is now the instruction. Feet-inches is still read and
+converted — and reported, so you can fix it at the source before a spreadsheet
+eats it. Files you already filled in under the old `Height` name keep working
+for good.
+
+## Everything from 0.5.0 is still here
+
+- **`SkinTone`**, said by you and never guessed, with face swaps keeping the
+  tone the roster slot already had.
+- **`--package`**, handing your whole export back as one archive.
+- **Attributes measured from the game itself**, for all 59 archetypes.
+- **Period-correct equipment**, faces that are not real people's, a complete
+  85-man roster, and ratings from EA's own overall formulas.
 
 ## Known limitations
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
-- **The package is a convenience, not yet an import path.** The community
-  roster editor imports individual CSVs. Whether it will also take a whole
-  folder or archive is not something this project controls — so keep importing
-  `Generated_Roster.csv` and `Generated_Equipment.csv` as you do now, and
-  treat the `.zip` as one tidy thing to keep or move.
+- **Writing a save is verified on one game version.** If a patch moves the
+  save format, the tool will say so and refuse to write rather than risk your
+  dynasty. Reading an export is unaffected.
 - **Windows only.**
-- **Lightly used so far.** All 317 tests run on a Windows machine at release
-  time, and the CLI is launched and exercised there before packaging. Expect
-  rough edges, and please [open an issue](../../issues) when you hit one.
+- **FBS membership records arrivals, not departures.** A 2010 template writes
+  119 teams where the real FBS had 120 — the missing one is Idaho, which
+  CFB27 does not carry, so it cannot be recreated.
+- **The app names the new save for you**, beside your original with
+  `-Recreated` appended. There is no "save as" dialog yet.
+- **Lightly used so far.** All 353 tests run on a Windows machine at release
+  time, the executable is launched there, and the bundled runtime is started
+  there before packaging. Expect rough edges, and please
+  [open an issue](../../issues) when you hit one.
 - **The generator will not always agree with you about a player.** Everything
-  it writes is editable in the community roster editor afterwards.
-- **Equipment covers head gear, sleeves and pads only.** The uniform loadout
-  has 32 slots and three are decoded.
-- **One team per run**, and one season per run — so an all-time roster with a
-  different year on every row gets one era's helmets.
-- **Back up your dynasty save** before importing anything.
+  it writes is editable afterwards.
+- **Back up your dynasty save** before importing or loading anything.
 
 ## Upgrading
 
 Unzip over a fresh folder and use it. Nothing you have already written needs
-to change: `SkinTone` is optional and blank behaves as it always did.
+to change, including roster files using the old `Height` column.
 
-The one thing to expect: **re-generating an existing roster may change some
-faces**, because replacements now match the slot's own skin tone rather than
-being drawn from the whole pool. Ratings are unchanged from 0.4.0.
+Keep the whole unzipped folder together — `data`, `templates` and `tools` all
+need to sit beside the executables. `tools` is new in this release and is what
+reads your save.
 
-From **v0.3.x and earlier**: re-generating changes attributes substantially
-(overalls stay put), and importing only the roster file leaves your players in
-modern helmets — import the equipment file too.
+Ratings are unchanged from 0.5.0.
 
 ## Requires
 
-Two other community tools: the export tool that turns your dynasty into a
-folder of CSV files, and the roster editor that imports a CSV back into the
-game. This project is the step in between and does neither.
+Nothing, if you use the save workflow. The community export tool and roster
+editor are still supported and still work exactly as before if you prefer
+them, or if you would rather this program never opened your save.
 
 ---
 
