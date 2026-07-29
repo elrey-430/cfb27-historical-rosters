@@ -16,9 +16,14 @@ for, season statistics, hometowns, transfer origins and depth-chart roles.
 Try it:
 
 ```
-RosterGenerator.Cli.exe validate --roster examples\2023_Florida_State.csv --dynasty C:\path\to\export
-RosterGenerator.Cli.exe generate --roster examples\2023_Florida_State.csv --dynasty C:\path\to\export
+RosterGenerator.Cli.exe validate --roster examples\2023_Florida_State.csv --dynasty DYNASTY-BASE1
+RosterGenerator.Cli.exe generate --roster examples\2023_Florida_State.csv --dynasty DYNASTY-BASE1 ^
+    --save-out DYNASTY-2023FSU
 ```
+
+`--dynasty` takes your dynasty save straight out of
+`Documents\EA SPORTS College Football 27\saves`, or a folder of exported
+CSVs if you prefer that route. Drop `--save-out` to get CSVs instead.
 
 It will generate 75 players onto Florida State and fill the remaining 10
 roster slots as depth. Then open `Output\Generation_Report.txt` and read what

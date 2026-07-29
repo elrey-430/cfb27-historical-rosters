@@ -62,7 +62,10 @@ never required.
 
 ## Rules
 
-- One file describes **one team's roster for one season**.
+- One file may describe **one team, or every team in a season**. Each
+  team's slots are disjoint, so any number of them convert in one run.
+- `Season` is read **per row**, so an all-time roster can carry a different
+  year on every player and each of them gets that year's equipment.
 - The first line is the header. Column order does not matter, header names
   are case-insensitive, and spaces are ignored (`First Name` works).
   Columns the tool does not recognize are left alone.
@@ -111,11 +114,11 @@ Every correction and every substitution is listed in
 | Column | Example | Notes |
 |---|---|---|
 | `Number` | `13` | Jersey number 0–99. Blank = keeps the replaced player's number |
-| `Height` | `6-2`, `6'2"`, or `74` | Feet-inches or plain inches |
+| `HeightInches` | `74` | **Inches, always.** Write `74`, not `6-2` — Excel turns `6-2` into the 2nd of June the moment it opens the file, destroying the height before the tool sees it. Feet-inches is still read and converted if it survives, and reported so you can fix it at source. Files using the old `Height` name keep working |
 | `Weight` | `212` | Pounds (160–400). Blank = keeps the replaced player's weight |
 | `Class` | `Freshman`, `RS Junior`, `Redshirt Senior`, `Graduate` | "RS"/"Redshirt" prefixes set the in-game redshirt flag; Graduate becomes Senior |
 | `Team` | `Florida State` | The school this roster belongs to. May instead be chosen when running the generator; must match a team in **your** dynasty (see `list-teams`) |
-| `Season` | `2013` | The historical season, used for labeling and reports |
+| `Season` | `2013` | The historical season. Labels the report, picks the equipment era, and — with `--dynasty-year` — the year the game itself displays. Read per row, so an all-time roster can name a different year on each player |
 | `Role` | `Starter` | `Starter` / `Backup` / `Reserve` / `Walk-on`. The cheapest way to make a roster look right — see above. Blank behaves exactly as if the column were absent; a word the tool does not recognize is ignored and reported |
 
 ## Optional columns — performance evidence (drives rating generation)
@@ -158,11 +161,11 @@ have — percentages and per-carry averages are derived automatically.
 ## Example
 
 ```csv
-FirstName,LastName,Position,Number,Height,Weight,Class,Team,Season,Hometown,PreviousSchool,Notes
-Jordan,Travis,QB,13,6-1,212,RS Senior,Florida State,2023,"West Palm Beach, FL",Louisville,Starter
-Trey,Benson,Tailback,3,6-1,216,RS Junior,Florida State,2023,"Greenville, MS",Oregon,
-Jared,Verse,Defensive End,5,6-4,260,RS Senior,Florida State,2023,"Dade City, FL",Albany,
-Ryan,Fitzgerald,K,88,6-1,190,RS Junior,Florida State,2023,"Colquitt, GA",,
+FirstName,LastName,Position,Number,HeightInches,Weight,Class,Team,Season,Hometown,PreviousSchool,Notes
+Jordan,Travis,QB,13,73,212,RS Senior,Florida State,2023,"West Palm Beach, FL",Louisville,Starter
+Trey,Benson,Tailback,3,73,216,RS Junior,Florida State,2023,"Greenville, MS",Oregon,
+Jared,Verse,Defensive End,5,76,260,RS Senior,Florida State,2023,"Dade City, FL",Albany,
+Ryan,Fitzgerald,K,88,73,190,RS Junior,Florida State,2023,"Colquitt, GA",,
 ```
 
 ## What happens to your data
@@ -172,11 +175,12 @@ Ryan,Fitzgerald,K,88,6-1,190,RS Junior,Florida State,2023,"Colquitt, GA",,
 | Names | `FirstName` / `LastName` (replace-identity edit) |
 | Position | Normalized CFB27 position; players are placed into matching roster slots where possible (a generic DE may take an LE or RE slot) |
 | Number | `JerseyNum` |
-| Height | `Height` (inches) |
+| HeightInches | `Height` (inches) |
 | Weight | `Weight` using the confirmed encoding (stored = pounds − 160) |
 | Class | `SchoolYear` + `RedshirtStatus` |
 | Role / stats / awards / draft / combine | Generated ratings — all 56 attributes plus the overall, computed with EA's own overall formula |
 | Hometown | `PLYR_HOME_TOWN` (town) + `PLYR_HOME_STATE` (state enum) |
+| LastName (again) | `PLYR_COMMENT` — the recorded name the announcers say, or 0 when the commentary has no recording of it |
 | Position, weight, height and stats | The player's **archetype** (`PlayerType`), e.g. a 225 lb back becomes `HB_PowerBack`. The overall is then recomputed with that archetype's formula |
 | PreviousSchool | `PLYR_PREVTEAMID` (the school's id in your dynasty) |
 
