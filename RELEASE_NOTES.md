@@ -1,67 +1,60 @@
-# v0.7.2-alpha
+# v0.7.3-alpha
 
-**If you built a roster covering more than one team, only one of them was
-generated.** Fixed. Please re-run any multi-team roster you made before this.
+**"Write a new dynasty save" now works.** It never has in a released build.
+Turning it on ended the run with a Node error and no save, whatever roster you
+were generating.
 
 ## What was wrong
 
-The app sent the team it had detected on every run, and an explicit team used
-to beat each row's own `Team` cell. So a file covering a whole season was
-written onto whichever school happened to be listed first — **10,115 players
-onto one team**, and nothing said so.
+Your roster was generated, correctly, to `Output\Generated_Roster.csv` beside
+the executable. The step that writes it into your save then looked for it in
+`tools\native-save\Output\Generated_Roster.csv` — a folder that has never
+existed — and stopped:
 
-It looked like a limitation ("I can only pick one team") and it was actually a
-silent wrong answer. A three-team test file put all six players, including
-Alabama's and Michigan's, onto Florida State.
+```
+Error: ENOENT: no such file or directory, open
+  '...\CFB27-Roster-Generator-0.7.2-alpha-win-x64\tools\native-save\Output\Generated_Roster.csv'
+```
+
+The save reader is a separate program, and it runs from its own folder because
+that is where its code lives. The roster's path is relative to *yours*. Handing
+one straight to the other meant the two disagreed about what the same path
+meant.
+
+Nothing to do with the size of the roster. A full FBS run just gets that far.
 
 ## What now happens
 
-**Your `Team` column decides.** Each player goes to the team their own cell
-names, so one file carries as many teams as you like and they all generate in
-one run:
+Every path is resolved before the save reader sees it, so both halves mean the
+same file. Generate with **Write a new dynasty save** ticked and you get
+`YOUR-SAVE-Recreated` beside your original, as the option has always described.
 
-```csv
-FirstName,LastName,Position,Team,Season
-Jordan,Travis,QB,Florida State,2023
-Jalen,Milroe,QB,Alabama,2023
-```
+Your own save is still never modified. That has not changed and is checked
+rather than assumed.
 
-Verified on a filled 2010 season against a real save: **10,115 players across
-119 teams, 85 each, zero misplaced** — and that run had a team explicitly set,
-which is exactly the case that used to break.
+## If it fails, it now says why
 
-**The app stops asking a question your file already answers.** When your file
-names teams, the picker greys out and the window tells you what it found:
+The save reader used to answer with a raw stack trace. It no longer does:
 
-> Your file covers 119 teams and each player goes to the one their Team cell
-> names — Air Force, Akron, Alabama and 116 more.
-
-The picker stays for the one case it is for: a file with **no** `Team` column,
-where it is the only way to say where players go.
-
-On the command line, `--team` is now a fallback for rows that leave `Team`
-blank rather than something that overrides the file. If you want one team,
-put one team in the file.
-
-`--season` is unchanged and is still a true override — a season really is
-roster-wide, so "treat this file as 1999" still means all of it.
+- A table it cannot find is **named**, followed by *"nothing was written and
+  your save was not touched."*
+- A save that is not there says **there is no dynasty save at that path**,
+  instead of complaining about a missing file header.
 
 ## Do I need to re-run anything?
 
-**Yes, if your roster file named more than one team.** What you got was one
-team's worth of players and 118 teams quietly dropped. Re-generate and you will
-get all of them.
-
-If your file only ever named one team, nothing about your output changes.
+**Only if you wanted a save written and did not get one.** If you have been
+importing `Generated_Roster.csv` with a roster editor, that file was always
+correct and nothing about it changes here.
 
 ## Nothing else changed
 
-Ratings, archetypes, abilities, equipment, faces, the commentary index and the
-season year are identical to v0.7.1.
+Ratings, archetypes, abilities, equipment, faces, the commentary index, the
+season year and team assignment are identical to v0.7.2.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.7.2-alpha-win-x64.zip`** (123 MB)
+**`CFB27-Roster-Generator-0.7.3-alpha-win-x64.zip`** (123 MB)
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
