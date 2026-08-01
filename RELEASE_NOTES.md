@@ -1,60 +1,105 @@
-# v0.7.3-alpha
+# v0.8.0-alpha
 
-**"Write a new dynasty save" now works.** It never has in a released build.
-Turning it on ended the run with a Node error and no save, whatever roster you
-were generating.
+**Ratings move for everyone in this release.** Re-generate any roster you care
+about — the numbers your file produces today are not the numbers it produced in
+v0.7.3.
 
-## What was wrong
+Two things drove it: recreated players were coming out as somebody else's body,
+and a generated roster looked nothing like a real one once you lined the two up.
 
-Your roster was generated, correctly, to `Output\Generated_Roster.csv` beside
-the executable. The step that writes it into your save then looked for it in
-`tools\native-save\Output\Generated_Roster.csv` — a folder that has never
-existed — and stopped:
+## Recreated players get their own build
 
-```
-Error: ENOENT: no such file or directory, open
-  '...\CFB27-Roster-Generator-0.7.2-alpha-win-x64\tools\native-save\Output\Generated_Roster.csv'
-```
+Every generated player now gets a body build — **Lean, Thin, Standard,
+Muscular or Heavy** — worked out from their position, height and weight. You
+supply nothing; the tool already has all three.
 
-The save reader is a separate program, and it runs from its own folder because
-that is where its code lives. The roster's path is relative to *yours*. Handing
-one straight to the other meant the two disagreed about what the same path
-meant.
+Left alone, the build belonged to whoever held the roster slot. That is not a
+subtle wrong: generating the 2023 Florida State roster into a real save turned
+up a **310 lb guard marked Thin**, a **290 lb defensive tackle marked Thin**,
+and a **305 lb defensive tackle marked Standard**.
 
-Nothing to do with the size of the roster. A full FBS run just gets that far.
+Ends and tackles come out Muscular, the interior line and defensive tackle
+Heavy, kickers and punters Thin, everyone else on the light builds their height
+and weight can actually carry. A 6'5" 190 lb receiver is Lean; a 5'10" 190 lb
+receiver is not.
 
-## What now happens
+## A drafted player is rated like one
 
-Every path is resolved before the save reader sees it, so both halves mean the
-same file. Generate with **Write a new dynasty save** ticked and you get
-`YOUR-SAVE-Recreated` beside your original, as the option has always described.
+**Every drafted player clears 85 overall, and a draft pick now says roughly
+what a player was.** The curve runs the whole band:
 
-Your own save is still never modified. That has not changed and is checked
-rather than assumed.
+| Pick | 1 | 5 | 32 | 64 | 100 | 160 | 256 |
+|---|---|---|---|---|---|---|---|
+| Overall | **99** | 97 | 93 | 90 | 88 | 86 | **85** |
 
-## If it fails, it now says why
+Before this a seventh-round pick came out at **77** — below a player whose row
+said nothing about the draft at all.
 
-The save reader used to answer with a raw stack trace. It no longer does:
+**A draft slot is a floor and never a ceiling.** Derrick Henry won the Heisman
+and went 45th; a season has to be able to outrun where the NFL took someone
+months later. It now does:
 
-- A table it cannot find is **named**, followed by *"nothing was written and
-  your save was not touched."*
-- A save that is not there says **there is no dynasty save at that path**,
-  instead of complaining about a missing file header.
+| | Heisman season | Ordinary season |
+|---|---|---|
+| Taken 45th | **96** | 92 |
+| Taken 240th | **96** | 85 |
+
+Position still binds the top: a receiver taken first overall reaches 99, a
+halfback 96, because 96 is the best halfback the game itself carries.
+
+**`UDFA` in the `DraftPick` column caps a player at 85**, where the drafted band
+begins, so the two meet rather than overlap. **Leaving the column empty does
+neither** — "undrafted" is a statement about the player, an empty column means
+you do not know, and most all-time rosters carry no draft data at all.
+
+## Your roster comes out as a curve, not a stack
+
+A generated roster used to arrive in spikes. On the 2023 Florida State file —
+64 of whose 75 rows carry no stats, no award and no draft slot — **18 players
+landed on exactly 78 and 25 on exactly 68.** The game's own Florida State puts
+three to nine players on each value from 69 to 84.
+
+Two fixes, both measured against the game rather than guessed:
+
+- **Depth-chart roles were rated three to five points low.** A starter is now
+  78, a backup 73, a reserve 68, a walk-on 64 — each the median the game itself
+  carries at those roster ranks. The 75–79 band went from 3 players to 18,
+  against the 21 EA carries.
+- **Players the file distinguishes in no way are spread** across the range the
+  game shows for their role, instead of stacking on one number. It only ever
+  moves a player your file says nothing about: one stat, one award or one draft
+  slot and they keep their own rating.
+
+| | Biggest stack | Distinct ratings |
+|---|---|---|
+| Before | 25 players | 20 |
+| **Now** | **15 players** | **27** |
+| EA's own roster | 9 players | 25 |
+
+The same file always produces the same roster — the ordering never uses chance.
+
+## Recreated players are no longer marked as real people
+
+`IsNIL` marks a slot as holding a real athlete who signed an NIL agreement, and
+**the game will not let such a player be edited.** A recreated player inherited
+that flag from whoever held the slot, which both claimed something untrue about
+them and left them locked.
+
+Every generated player is now written with it off. Since the flag sits on 100%
+of the players at 90 overall and above, it was the whole starting eleven of a
+recreated roster arriving un-editable.
 
 ## Do I need to re-run anything?
 
-**Only if you wanted a save written and did not get one.** If you have been
-importing `Generated_Roster.csv` with a roster editor, that file was always
-correct and nothing about it changes here.
+**Yes, if you want any of the above.** Nothing about your roster *file* has
+changed — the same file simply produces better output. Re-generate and re-load.
 
-## Nothing else changed
-
-Ratings, archetypes, abilities, equipment, faces, the commentary index, the
-season year and team assignment are identical to v0.7.2.
+If you are happy with a roster you already built, it still works; it just does
+not have the builds or the new ratings.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.7.3-alpha-win-x64.zip`** (123 MB)
+**`CFB27-Roster-Generator-0.8.0-alpha-win-x64.zip`** (123 MB)
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
