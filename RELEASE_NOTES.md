@@ -1,105 +1,67 @@
-# v0.8.0-alpha
+# v0.8.1-alpha
 
-**Ratings move for everyone in this release.** Re-generate any roster you care
-about — the numbers your file produces today are not the numbers it produced in
-v0.7.3.
+**Your roster now comes out looking like a real one.** A small update on top of
+v0.8.0, and the one that finally got the shape right — every measure improved
+at once.
 
-Two things drove it: recreated players were coming out as somebody else's body,
-and a generated roster looked nothing like a real one once you lined the two up.
+## What changed
 
-## Recreated players get their own build
+A player your file says little about is held to what the game carries for that
+*kind* of player. That limit used to read only their class year, which treated
+"young" and "unknown" as the same thing. The game does not.
 
-Every generated player now gets a body build — **Lean, Thin, Standard,
-Muscular or Heavy** — worked out from their position, height and weight. You
-supply nothing; the tool already has all three.
+Measured across 11,730 players on 138 teams — the overall each kind of player
+reaches:
 
-Left alone, the build belonged to whoever held the roster slot. That is not a
-subtle wrong: generating the 2023 Florida State roster into a real save turned
-up a **310 lb guard marked Thin**, a **290 lb defensive tackle marked Thin**,
-and a **305 lb defensive tackle marked Standard**.
+| | Freshman | Sophomore | Junior | Senior |
+|---|---|---|---|---|
+| Starter | 82 | 84 | 87 | 87 |
+| Backup | 78 | 77 | 77 | 77 |
+| Reserve | 73 | 73 | 73 | 73 |
+| Walk-on | 68 | 68 | 68 | 67 |
 
-Ends and tackles come out Muscular, the interior line and defensive tackle
-Heavy, kickers and punters Thin, everyone else on the light builds their height
-and weight can actually carry. A 6'5" 190 lb receiver is Lean; a 5'10" 190 lb
-receiver is not.
+**Below the starting eleven, class year hardly matters at all.** Backups reach
+77 or 78 whether they are freshmen or seniors; reserves reach 73. Only starters
+show a real difference by year, and even then it is five points across four
+years.
 
-## A drafted player is rated like one
+So one limit per class was wrong in both directions at once. It held a
+**freshman backup ten points below** where the game puts one, and let a
+**senior reserve nine points above**. Your roster now reads role first and
+class second.
 
-**Every drafted player clears 85 overall, and a draft pick now says roughly
-what a player was.** The curve runs the whole band:
-
-| Pick | 1 | 5 | 32 | 64 | 100 | 160 | 256 |
-|---|---|---|---|---|---|---|---|
-| Overall | **99** | 97 | 93 | 90 | 88 | 86 | **85** |
-
-Before this a seventh-round pick came out at **77** — below a player whose row
-said nothing about the draft at all.
-
-**A draft slot is a floor and never a ceiling.** Derrick Henry won the Heisman
-and went 45th; a season has to be able to outrun where the NFL took someone
-months later. It now does:
-
-| | Heisman season | Ordinary season |
-|---|---|---|
-| Taken 45th | **96** | 92 |
-| Taken 240th | **96** | 85 |
-
-Position still binds the top: a receiver taken first overall reaches 99, a
-halfback 96, because 96 is the best halfback the game itself carries.
-
-**`UDFA` in the `DraftPick` column caps a player at 85**, where the drafted band
-begins, so the two meet rather than overlap. **Leaving the column empty does
-neither** — "undrafted" is a statement about the player, an empty column means
-you do not know, and most all-time rosters carry no draft data at all.
-
-## Your roster comes out as a curve, not a stack
-
-A generated roster used to arrive in spikes. On the 2023 Florida State file —
-64 of whose 75 rows carry no stats, no award and no draft slot — **18 players
-landed on exactly 78 and 25 on exactly 68.** The game's own Florida State puts
-three to nine players on each value from 69 to 84.
-
-Two fixes, both measured against the game rather than guessed:
-
-- **Depth-chart roles were rated three to five points low.** A starter is now
-  78, a backup 73, a reserve 68, a walk-on 64 — each the median the game itself
-  carries at those roster ranks. The 75–79 band went from 3 players to 18,
-  against the 21 EA carries.
-- **Players the file distinguishes in no way are spread** across the range the
-  game shows for their role, instead of stacking on one number. It only ever
-  moves a player your file says nothing about: one stat, one award or one draft
-  slot and they keep their own rating.
+## What that looks like
 
 | | Biggest stack | Distinct ratings |
 |---|---|---|
-| Before | 25 players | 20 |
-| **Now** | **15 players** | **27** |
+| v0.7.3 | 25 players | 20 |
+| v0.8.0 | 15 players | 27 |
+| **v0.8.1** | **8 players** | **32** |
 | EA's own roster | 9 players | 25 |
 
-The same file always produces the same roster — the ordering never uses chance.
+Fifteen freshmen who all came out at exactly 68 in v0.8.0 are now spread across
+the range the game actually gives them. The low 80s sit across 80, 81, 82 and
+84 instead of stacking on 80.
 
-## Recreated players are no longer marked as real people
-
-`IsNIL` marks a slot as holding a real athlete who signed an NIL agreement, and
-**the game will not let such a player be edited.** A recreated player inherited
-that flag from whoever held the slot, which both claimed something untrue about
-them and left them locked.
-
-Every generated player is now written with it off. Since the flag sits on 100%
-of the players at 90 overall and above, it was the whole starting eleven of a
-recreated roster arriving un-editable.
+Ratings also match the shape of EA's own Florida State roster more closely than
+in either previous release, so this costs nothing to take.
 
 ## Do I need to re-run anything?
 
-**Yes, if you want any of the above.** Nothing about your roster *file* has
-changed — the same file simply produces better output. Re-generate and re-load.
+**Only if you want the better spread.** Nothing about your roster file changes
+— the same file simply produces a better roster. If you generated with v0.8.0
+an hour ago, re-generating is worth it; everything else about the output is the
+same.
 
-If you are happy with a roster you already built, it still works; it just does
-not have the builds or the new ratings.
+## Still not right
+
+The bottom of a generated roster is heavier than the game's — 28 players under
+70 where EA carries 16. That is the walk-on and reserve end, and it is the next
+thing to measure.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.8.0-alpha-win-x64.zip`** (123 MB)
+**`CFB27-Roster-Generator-0.8.1-alpha-win-x64.zip`** (123 MB)
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
