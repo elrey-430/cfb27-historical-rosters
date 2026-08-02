@@ -1,64 +1,72 @@
-# v0.8.2-alpha
+# v0.8.3-alpha
 
-**If your roster file fills in `DraftRound`, re-generate it.** That column was
-in the template and the tool never read it, so a player entered as *round 2,
-pick 1* was rated as the first pick of the entire draft.
+**Your starters now actually start.** Depth charts are rebuilt automatically
+when a roster is generated. Nothing is asked of you.
 
 ## What was wrong
 
-`DraftPick` was read as an **overall** pick number, always. `DraftRound` was
-used only when `DraftPick` was empty.
+A depth chart points at roster *slots*, in the order the dynasty's original
+players ranked. Generating a roster changes who occupies each slot and left the
+chart alone — so the spot the game believed was your starting quarterback held
+whoever happened to land there. Often a walk-on.
 
-So writing a second-round selection the way the draft is actually announced —
-round 2, pick 1 — produced the number one overall pick, and a player who really
-went 33rd came out in the high nineties instead of the low nineties. Anyone
-filling in both columns was quietly inflating their best drafted players.
+The game never fixes this on its own. You kick off with the wrong eleven.
 
 ## What now happens
 
-**Write it either way.** Both columns are read together and you get the same
-player:
+Every team you generate has its depth chart rebuilt from the ratings the tool
+just produced. Generating the 2023 Florida State roster, before and after:
 
-| `DraftRound` | `DraftPick` | Read as |
-|---|---|---|
-| `2` | `1` | 33rd overall — the first pick of round two |
-| *(blank)* | `33` | 33rd overall |
-| `2` | `45` | 45th overall — which is the 13th pick of round two |
-| `7` | `20` | 212th overall |
-| `2` | *(blank)* | the middle of round two |
-| *(blank)* | `150` | 150th overall |
+```
+before   QB   Daniels(77), Willow(76), Sperry(74)
+after    QB   Travis(92), Glenn(77), Rodemaker(70)
 
-The tool tells the two apart by arithmetic rather than by asking you: **a pick
-larger than a round holds cannot be a position inside one**, so it is an
-overall number. Below that, a round makes the pick a position within it. In
-round one the two readings agree, so nothing has to be decided.
+before   WR   Robinson(92), Danzy(84), Lopez(79), ...
+after    WR   Coleman(93), Wilson(88), Douglas(80), ...
+```
 
-**It always tells you how it read your number.** The report says *"Drafted #33
-overall (round 2, pick 1)"* — a misunderstanding shows up in the output instead
-of hiding inside a rating.
+**Every slot, not just the obvious ones.** The chart has 35 of them and fifteen
+are not positions at all — the gunner spot takes halfbacks and receivers, long
+snapper is mostly tight ends, slot corner draws on corners and both safeties.
+Which players belong where, and how deep each spot runs, was measured from the
+game's own 143 charts rather than guessed.
 
-If a round and a pick flatly contradict each other — round 2, pick 200 — the
-report says so and the pick is used, being the more specific of the two. A pick
-that runs a round long is not flagged: real rounds run past 32 selections when
-compensatory picks are awarded, so round 7, pick 240 is ordinary.
+**Both sides of the line are handled properly.** Left and right tackle are one
+assignment rather than two picks: the game never puts the same player at the
+top of both, and the better of the two goes to the left side. Your line comes
+out the same way:
+
+```
+LT   Byers(LT 84), Armella(RT 70)
+RT   Scott(LT 73), Sapp(RT 65)
+```
+
+**Anything you pinned yourself is left alone.** The game records locked depth
+chart entries separately, and those are never rewritten.
 
 ## Do I need to re-run anything?
 
-**Yes, if your file fills in `DraftRound` alongside `DraftPick`.** Those players
-were rated as though their pick number was an overall one, which made them far
-too good — a round-2 pick-1 player was a #1 overall.
+**Yes, if you want your depth charts fixed** — a roster generated before this
+still has the old ordering. Nothing about your roster file changes; re-generate
+and re-load.
 
-**No, if you only ever filled in `DraftPick`** with overall numbers, or left the
-draft columns empty. Nothing about those rosters changes.
+This only reaches dynasties written as a save. A folder from the community
+export tool usually does not carry the depth chart tables, and is skipped
+without complaint.
+
+## One thing to know
+
+Reading a save now takes about **13 seconds longer**, because two more tables
+come out of it. That is the whole cost.
 
 ## Nothing else changed
 
 Ratings, body builds, archetypes, abilities, equipment, faces, the commentary
-index and the season year are identical to v0.8.1.
+index and the season year are identical to v0.8.2.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.8.2-alpha-win-x64.zip`** (123 MB)
+**`CFB27-Roster-Generator-0.8.3-alpha-win-x64.zip`** (123 MB)
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
