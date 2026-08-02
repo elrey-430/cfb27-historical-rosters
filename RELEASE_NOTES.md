@@ -1,67 +1,64 @@
-# v0.8.1-alpha
+# v0.8.2-alpha
 
-**Your roster now comes out looking like a real one.** A small update on top of
-v0.8.0, and the one that finally got the shape right — every measure improved
-at once.
+**If your roster file fills in `DraftRound`, re-generate it.** That column was
+in the template and the tool never read it, so a player entered as *round 2,
+pick 1* was rated as the first pick of the entire draft.
 
-## What changed
+## What was wrong
 
-A player your file says little about is held to what the game carries for that
-*kind* of player. That limit used to read only their class year, which treated
-"young" and "unknown" as the same thing. The game does not.
+`DraftPick` was read as an **overall** pick number, always. `DraftRound` was
+used only when `DraftPick` was empty.
 
-Measured across 11,730 players on 138 teams — the overall each kind of player
-reaches:
+So writing a second-round selection the way the draft is actually announced —
+round 2, pick 1 — produced the number one overall pick, and a player who really
+went 33rd came out in the high nineties instead of the low nineties. Anyone
+filling in both columns was quietly inflating their best drafted players.
 
-| | Freshman | Sophomore | Junior | Senior |
-|---|---|---|---|---|
-| Starter | 82 | 84 | 87 | 87 |
-| Backup | 78 | 77 | 77 | 77 |
-| Reserve | 73 | 73 | 73 | 73 |
-| Walk-on | 68 | 68 | 68 | 67 |
+## What now happens
 
-**Below the starting eleven, class year hardly matters at all.** Backups reach
-77 or 78 whether they are freshmen or seniors; reserves reach 73. Only starters
-show a real difference by year, and even then it is five points across four
-years.
+**Write it either way.** Both columns are read together and you get the same
+player:
 
-So one limit per class was wrong in both directions at once. It held a
-**freshman backup ten points below** where the game puts one, and let a
-**senior reserve nine points above**. Your roster now reads role first and
-class second.
-
-## What that looks like
-
-| | Biggest stack | Distinct ratings |
+| `DraftRound` | `DraftPick` | Read as |
 |---|---|---|
-| v0.7.3 | 25 players | 20 |
-| v0.8.0 | 15 players | 27 |
-| **v0.8.1** | **8 players** | **32** |
-| EA's own roster | 9 players | 25 |
+| `2` | `1` | 33rd overall — the first pick of round two |
+| *(blank)* | `33` | 33rd overall |
+| `2` | `45` | 45th overall — which is the 13th pick of round two |
+| `7` | `20` | 212th overall |
+| `2` | *(blank)* | the middle of round two |
+| *(blank)* | `150` | 150th overall |
 
-Fifteen freshmen who all came out at exactly 68 in v0.8.0 are now spread across
-the range the game actually gives them. The low 80s sit across 80, 81, 82 and
-84 instead of stacking on 80.
+The tool tells the two apart by arithmetic rather than by asking you: **a pick
+larger than a round holds cannot be a position inside one**, so it is an
+overall number. Below that, a round makes the pick a position within it. In
+round one the two readings agree, so nothing has to be decided.
 
-Ratings also match the shape of EA's own Florida State roster more closely than
-in either previous release, so this costs nothing to take.
+**It always tells you how it read your number.** The report says *"Drafted #33
+overall (round 2, pick 1)"* — a misunderstanding shows up in the output instead
+of hiding inside a rating.
+
+If a round and a pick flatly contradict each other — round 2, pick 200 — the
+report says so and the pick is used, being the more specific of the two. A pick
+that runs a round long is not flagged: real rounds run past 32 selections when
+compensatory picks are awarded, so round 7, pick 240 is ordinary.
 
 ## Do I need to re-run anything?
 
-**Only if you want the better spread.** Nothing about your roster file changes
-— the same file simply produces a better roster. If you generated with v0.8.0
-an hour ago, re-generating is worth it; everything else about the output is the
-same.
+**Yes, if your file fills in `DraftRound` alongside `DraftPick`.** Those players
+were rated as though their pick number was an overall one, which made them far
+too good — a round-2 pick-1 player was a #1 overall.
 
-## Still not right
+**No, if you only ever filled in `DraftPick`** with overall numbers, or left the
+draft columns empty. Nothing about those rosters changes.
 
-The bottom of a generated roster is heavier than the game's — 28 players under
-70 where EA carries 16. That is the walk-on and reserve end, and it is the next
-thing to measure.
+## Nothing else changed
+
+Ratings, body builds, archetypes, abilities, equipment, faces, the commentary
+index and the season year are identical to v0.8.1.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.8.1-alpha-win-x64.zip`** (123 MB)
+**`CFB27-Roster-Generator-0.8.2-alpha-win-x64.zip`** (123 MB)
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
