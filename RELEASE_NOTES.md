@@ -1,72 +1,82 @@
-# v0.8.3-alpha
+# v0.8.4-alpha
 
-**Your starters now actually start.** Depth charts are rebuilt automatically
-when a roster is generated. Nothing is asked of you.
+**The tool now writes roster files as well as reading them.** Point it at a
+dynasty and get back a spreadsheet in the same format the generator reads —
+every player, already filled in.
 
-## What was wrong
+## Why this matters
 
-A depth chart points at roster *slots*, in the order the dynasty's original
-players ranked. Generating a roster changes who occupies each slot and left the
-chart alone — so the spot the game believed was your starting quarterback held
-whoever happened to land there. Often a walk-on.
+Until now the tool only went one way. If you wanted to correct one player out
+of ten thousand, your choices were to retype the roster or to edit the result
+in a third-party save editor — where the correction was invisible to this tool
+and lost the next time you generated. And every new project started from a
+blank template rather than from the roster the game already had.
 
-The game never fixes this on its own. You kick off with the wrong eleven.
+Now it goes both ways. Export, fix the row, generate.
 
-## What now happens
+## How to use it
 
-Every team you generate has its depth chart rebuilt from the ratings the tool
-just produced. Generating the 2023 Florida State roster, before and after:
+**In the app:** load a dynasty and click **Export roster file**. No roster file
+of your own is needed — this is how you get one.
 
-```
-before   QB   Daniels(77), Willow(76), Sperry(74)
-after    QB   Travis(92), Glenn(77), Rodemaker(70)
-
-before   WR   Robinson(92), Danzy(84), Lopez(79), ...
-after    WR   Coleman(93), Wilson(88), Douglas(80), ...
-```
-
-**Every slot, not just the obvious ones.** The chart has 35 of them and fifteen
-are not positions at all — the gunner spot takes halfbacks and receivers, long
-snapper is mostly tight ends, slot corner draws on corners and both safeties.
-Which players belong where, and how deep each spot runs, was measured from the
-game's own 143 charts rather than guessed.
-
-**Both sides of the line are handled properly.** Left and right tackle are one
-assignment rather than two picks: the game never puts the same player at the
-top of both, and the better of the two goes to the left side. Your line comes
-out the same way:
+**On the command line:**
 
 ```
-LT   Byers(LT 84), Armella(RT 70)
-RT   Scott(LT 73), Sapp(RT 65)
+RosterGenerator.Cli export --dynasty <save or folder> --output MyRoster.csv
 ```
 
-**Anything you pinned yourself is left alone.** The game records locked depth
-chart entries separately, and those are never rewritten.
+Add `--team "Florida State"` for one team. **Leave it off and it writes every
+team the dynasty carries** — a whole season in one file, which the generator
+reads straight back, because the roster file's own Team column decides where
+each player goes.
+
+## What comes out
+
+Everything the save actually knows, in the template's exact column order:
+
+- name, position, jersey number
+- height, weight, class year, redshirt status
+- hometown, home state, previous school
+- skin tone
+- role — read off the dynasty's own depth chart
+
+**Identity survives the round trip exactly.** Florida State exported from a
+base save and generated straight back in, compared player by player: position,
+jersey, height, weight, class, redshirt, town, state and previous school —
+85 of 85 on every one of them.
+
+**Transfers from schools your dynasty does not model** come out as `Unlisted`
+rather than blank. Blank would have read back as "never transferred", which is
+a different and untrue thing.
+
+## What comes out empty, on purpose
+
+The evidence columns — **stats, awards, combine numbers, draft position** — are
+left blank.
+
+A save records what a player *is*, never what he *did*. There is no stat line
+in there to export, and writing one anyway would put invented numbers in your
+file. So an exported roster reproduces identity exactly and rates from scratch.
+Fill those columns in yourself and the ratings become yours.
+
+That also means **exporting a roster and generating it back is not a no-op** on
+ratings. The players are the same men with the same builds; what they're rated
+comes from whatever evidence you supply.
 
 ## Do I need to re-run anything?
 
-**Yes, if you want your depth charts fixed** — a roster generated before this
-still has the old ordering. Nothing about your roster file changes; re-generate
-and re-load.
-
-This only reaches dynasties written as a save. A folder from the community
-export tool usually does not carry the depth chart tables, and is skipped
-without complaint.
-
-## One thing to know
-
-Reading a save now takes about **13 seconds longer**, because two more tables
-come out of it. That is the whole cost.
+**No.** Nothing about generating a roster changed in this release. This adds a
+way to get a roster file out; every roster file you already have still works
+exactly as it did.
 
 ## Nothing else changed
 
-Ratings, body builds, archetypes, abilities, equipment, faces, the commentary
-index and the season year are identical to v0.8.2.
+Ratings, depth charts, body builds, archetypes, abilities, equipment, faces,
+the commentary index and the season year are identical to v0.8.3.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.8.3-alpha-win-x64.zip`** (123 MB)
+**`CFB27-Roster-Generator-0.8.4-alpha-win-x64.zip`**
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
@@ -75,6 +85,8 @@ the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
+- **Exported rosters carry no stats, awards, combine or draft data**, because
+  a save has never held them. See above.
 - **A team your dynasty does not carry is reported and skipped**, and the rest
   of the file still generates. Check the report if a count looks short.
 - **Which ability a slot is cannot be set**, by this or any save editor — only
