@@ -1,82 +1,106 @@
-# v0.8.4-alpha
+# v0.9.0-alpha
 
-**The tool now writes roster files as well as reading them.** Point it at a
-dynasty and get back a spreadsheet in the same format the generator reads —
-every player, already filled in.
+**Rosters from the PS2-era NCAA Football games can now be read in.** Point the
+tool at one and get back a spreadsheet with real players — names, numbers,
+heights, weights, class years — for every team on it.
 
-## Why this matters
+## Why this is the big one
 
-Until now the tool only went one way. If you wanted to correct one player out
-of ten thousand, your choices were to retype the roster or to edit the result
-in a third-party save editor — where the correction was invisible to this tool
-and lost the next time you generated. And every new project started from a
-blank template rather than from the roster the game already had.
+Building a historical roster has always started the same way: typing. Names,
+positions, jersey numbers, heights, weights, one player at a time, eighty-five
+times per team.
 
-Now it goes both ways. Export, fix the row, generate.
+Community "named" rosters for the old NCAA games already contain all of that,
+for well over a hundred teams at once, entered by people who cared enough to get
+it right. This release reads them.
 
 ## How to use it
 
-**In the app:** load a dynasty and click **Export roster file**. No roster file
-of your own is needed — this is how you get one.
+**In the app:** type the season, click **Import old roster**, pick the file. The
+roster file it writes is loaded automatically, so you can go straight to Check
+and Generate.
 
 **On the command line:**
 
 ```
-RosterGenerator.Cli export --dynasty <save or folder> --output MyRoster.csv
+RosterGenerator.Cli import --legacy <roster file> --season 2004 --output MyRoster.csv
 ```
 
-Add `--team "Florida State"` for one team. **Leave it off and it writes every
-team the dynasty carries** — a whole season in one file, which the generator
-reads straight back, because the roster file's own Team column decides where
-each player goes.
+Add `--team "Texas"` for one school. Leave it off and it writes **every team in
+the file** — a whole season of college football in one spreadsheet.
 
-## What comes out
+**The season is required.** These files do not record what year they are, and
+the tool will not guess one from the players on it.
 
-Everything the save actually knows, in the template's exact column order:
+## What you get
 
-- name, position, jersey number
-- height, weight, class year, redshirt status
-- hometown, home state, previous school
+Everything the old file actually knows, per player:
+
+- first and last name
+- position, jersey number
+- height, weight, class year
 - skin tone
-- role — read off the dynasty's own depth chart
+- role, read from the old game's own depth chart
 
-**Identity survives the round trip exactly.** Florida State exported from a
-base save and generated straight back in, compared player by player: position,
-jersey, height, weight, class, redshirt, town, state and previous school —
-85 of 85 on every one of them.
+For a 2004 I-A roster that is **7,350 players across 119 teams** in one go.
 
-**Transfers from schools your dynasty does not model** come out as `Unlisted`
-rather than blank. Blank would have read back as "never transferred", which is
-a different and untrue thing.
+## What you don't get, and why
 
-## What comes out empty, on purpose
+**Ratings are not imported.** This is deliberate, and it is worth a paragraph.
 
-The evidence columns — **stats, awards, combine numbers, draft position** — are
-left blank.
+The old games stored 18 attributes. This one uses 57. Those 18 make up a little
+over half of what EA's own formula uses to work out a player's overall — and
+only 42% of it at quarterback. Copying them across would mean inventing the
+other half and presenting it as history. On top of that the old numbers are
+stored in five or six bits, on a scale that has no fixed relationship to
+anything in the modern game.
 
-A save records what a player *is*, never what he *did*. There is no stat line
-in there to export, and writing one anyway would put invented numbers in your
-file. So an exported roster reproduces identity exactly and rates from scratch.
-Fill those columns in yourself and the ratings become yours.
+**What does come across is the order** — and the order is the useful part
+anyway, because it is what those roster-makers actually knew.
 
-That also means **exporting a roster and generating it back is not a no-op** on
-ratings. The players are the same men with the same builds; what they're rated
-comes from whatever evidence you supply.
+- Where a player stood on his own team becomes a rating signal, weighted below
+  real evidence like a draft pick or an award.
+- Where he stood among others at his position shapes his attributes.
+
+That second part is what makes players feel like themselves. Generating the 2004
+USC roster, two backs listed one after the other in the source file:
+
+```
+HB Reggie Bush    OVR 84   Elusive Back   speed 95  strength 67
+HB LenDale White  OVR 83   Power Back     speed 78  strength 88
+```
+
+Same team, same standing, completely different players — and nothing but the old
+roster's ordering told the tool that.
+
+**Hometown, home state, previous school and redshirt status** are not in these
+files at all, and stats, awards and draft position never were. Fill those in for
+the players you know about and the ratings become yours.
 
 ## Do I need to re-run anything?
 
-**No.** Nothing about generating a roster changed in this release. This adds a
-way to get a roster file out; every roster file you already have still works
-exactly as it did.
+**No.** Nothing about generating a roster changed. Every roster file you already
+have produces exactly what it did in v0.8.4 — an import counts against nothing,
+so a roster you wrote by hand keeps the confidence it always had.
 
-## Nothing else changed
+## One thing to know about the results
 
-Ratings, depth charts, body builds, archetypes, abilities, equipment, faces,
-the commentary index and the season year are identical to v0.8.3.
+An old squad is about 62 players against this game's 85, so the bottom of each
+roster is still filled in as end-of-roster depth. And the heights and weights
+are a roster editor's numbers, not a media guide's — accurate enough to be
+useful, secondhand enough to be worth checking on players you care about.
+
+## Also in this release
+
+- The team id map covers all 119 teams, and 118 of them were identified by
+  reading the actual roster rather than assuming the ids run alphabetically.
+  They don't: USC and Utah sit next to each other.
+- Players the old file never named are left out. Whole divisions shipped
+  unnamed in those games.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.8.4-alpha-win-x64.zip`**
+**`CFB27-Roster-Generator-0.9.0-alpha-win-x64.zip`**
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
@@ -85,8 +109,10 @@ the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
-- **Exported rosters carry no stats, awards, combine or draft data**, because
-  a save has never held them. See above.
+- **Imported rosters carry no stats, awards, combine or draft data**, and no
+  hometown or previous school. The old files never held them.
+- **Imported ratings are estimates anchored to the old roster's ordering**, not
+  the old roster's ratings. See above.
 - **A team your dynasty does not carry is reported and skipped**, and the rest
   of the file still generates. Check the report if a count looks short.
 - **Which ability a slot is cannot be set**, by this or any save editor — only
