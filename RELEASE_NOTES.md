@@ -1,106 +1,71 @@
-# v0.9.0-alpha
+# v0.9.2-alpha
 
-**Rosters from the PS2-era NCAA Football games can now be read in.** Point the
-tool at one and get back a spreadsheet with real players — names, numbers,
-heights, weights, class years — for every team on it.
+**Schools the game dropped can now be recreated.** Of the 119 teams on a 2004
+roster, exactly one is missing from CFB27 — Idaho — and until now that roster
+was refused outright. Idaho now generates onto one of the game's generic FCS
+teams.
 
-## Why this is the big one
+## What this fixes
 
-Building a historical roster has always started the same way: typing. Names,
-positions, jersey numbers, heights, weights, one player at a time, eighty-five
-times per team.
-
-Community "named" rosters for the old NCAA games already contain all of that,
-for well over a hundred teams at once, entered by people who cared enough to get
-it right. This release reads them.
-
-## How to use it
-
-**In the app:** type the season, click **Import old roster**, pick the file. The
-roster file it writes is loaded automatically, so you can go straight to Check
-and Generate.
-
-**On the command line:**
+Import a 2004 roster and try to generate Idaho, and v0.9.0 stopped with:
 
 ```
-RosterGenerator.Cli import --legacy <roster file> --season 2004 --output MyRoster.csv
+Error: School 'Idaho' is not in the team mapping file.
 ```
 
-Add `--team "Texas"` for one school. Leave it off and it writes **every team in
-the file** — a whole season of college football in one spreadsheet.
+There was nowhere to put them. CFB27 carries 136 FBS schools and Idaho left the
+FBS in 2018.
 
-**The season is required.** These files do not record what year they are, and
-the tool will not guess one from the players on it.
-
-## What you get
-
-Everything the old file actually knows, per player:
-
-- first and last name
-- position, jersey number
-- height, weight, class year
-- skin tone
-- role, read from the old game's own depth chart
-
-For a 2004 I-A roster that is **7,350 players across 119 teams** in one go.
-
-## What you don't get, and why
-
-**Ratings are not imported.** This is deliberate, and it is worth a paragraph.
-
-The old games stored 18 attributes. This one uses 57. Those 18 make up a little
-over half of what EA's own formula uses to work out a player's overall — and
-only 42% of it at quarterback. Copying them across would mean inventing the
-other half and presenting it as history. On top of that the old numbers are
-stored in five or six bits, on a scale that has no fixed relationship to
-anything in the modern game.
-
-**What does come across is the order** — and the order is the useful part
-anyway, because it is what those roster-makers actually knew.
-
-- Where a player stood on his own team becomes a rating signal, weighted below
-  real evidence like a draft pick or an award.
-- Where he stood among others at his position shapes his attributes.
-
-That second part is what makes players feel like themselves. Generating the 2004
-USC roster, two backs listed one after the other in the source file:
+The game does ship five generic FCS teams — East, Midwest, Northwest, Southeast
+and West — each with a real 85-man roster sitting unused. **Idaho is now written
+onto FCS East**, and nothing is asked of you: load the roster and generate.
 
 ```
-HB Reggie Bush    OVR 84   Elusive Back   speed 95  strength 67
-HB LenDale White  OVR 83   Power Back     speed 78  strength 88
+Historical roster: 2004 Idaho — 56 players
+Converted 56 players onto FCS East (0 skipped, 29 slots filled as depth)
 ```
 
-Same team, same standing, completely different players — and nothing but the old
-roster's ordering told the tool that.
+## Adding another school yourself
 
-**Hometown, home state, previous school and redshirt status** are not in these
-files at all, and stats, awards and draft position never were. Fill those in for
-the players you know about and the ratings become yours.
+One line in `data/TeamMappings.json`. Put the school's name in the `names` list
+of whichever FCS team should hold it:
+
+```json
+{ "teamId": 255, "names": ["FCS East", "FCSE", "Idaho"], "standInTeam": "FCS East" }
+```
+
+There are five FCS teams, so **five departed schools can live in one dynasty**
+before they start overwriting each other. That is plenty for the 2000s, and a
+real limit if you go back to the era of Pacific and Long Beach State.
+
+## A bug this found
+
+The equipment step worked out who to re-helmet by asking which players belonged
+to the team. That question has a bad answer for the FCS teams: all five share a
+team number with the game's entire recruiting pool, so **generating one FCS team
+put that era's helmets on 4,527 players who had nothing to do with it.**
+
+Generation now records exactly which roster slots it wrote and equipment follows
+those. Ordinary teams behave exactly as before — same slots, same helmets — so
+nothing you have generated changes.
 
 ## Do I need to re-run anything?
 
-**No.** Nothing about generating a roster changed. Every roster file you already
-have produces exactly what it did in v0.8.4 — an import counts against nothing,
-so a roster you wrote by hand keeps the confidence it always had.
+**Only if you generated onto an FCS team**, which before this release was not
+really possible on purpose. If you did, re-generate: the equipment table you
+imported carried thousands of players it should not have.
 
-## One thing to know about the results
+Everything else is untouched. Every roster file you have produces exactly what
+it did in v0.9.0.
 
-An old squad is about 62 players against this game's 85, so the bottom of each
-roster is still filled in as end-of-roster depth. And the heights and weights
-are a roster editor's numbers, not a media guide's — accurate enough to be
-useful, secondhand enough to be worth checking on players you care about.
+## Nothing else changed
 
-## Also in this release
-
-- The team id map covers all 119 teams, and 118 of them were identified by
-  reading the actual roster rather than assuming the ids run alphabetically.
-  They don't: USC and Utah sit next to each other.
-- Players the old file never named are left out. Whole divisions shipped
-  unnamed in those games.
+Ratings, imports, depth charts, body builds, archetypes, abilities, faces, the
+commentary index and the season year are identical to v0.9.0.
 
 ## Download
 
-**`CFB27-Roster-Generator-0.9.0-alpha-win-x64.zip`**
+**`CFB27-Roster-Generator-0.9.2-alpha-win-x64.zip`**
 
 Unzip the whole folder — keep `data`, `templates` and `tools` together beside
 the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
@@ -109,10 +74,14 @@ the executables — and run `RosterGenerator.Gui.exe`. Windows 10 or 11, 64-bit.
 
 - **Not code-signed.** Windows SmartScreen will show *"Windows protected
   your PC"*. Click **More info** → **Run anyway**.
+- **Five departed schools per dynasty**, because there are five FCS teams.
+- **The FCS teams do not appear in the team list.** The game marks them as
+  having no team number of their own, so they are reachable by name but not
+  listed. Type the school and it works.
 - **Imported rosters carry no stats, awards, combine or draft data**, and no
   hometown or previous school. The old files never held them.
 - **Imported ratings are estimates anchored to the old roster's ordering**, not
-  the old roster's ratings. See above.
+  the old roster's ratings.
 - **A team your dynasty does not carry is reported and skipped**, and the rest
   of the file still generates. Check the report if a count looks short.
 - **Which ability a slot is cannot be set**, by this or any save editor — only
